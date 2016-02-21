@@ -5,14 +5,14 @@ import random
 import os
 import threading
 
-from flask import Flask
+# from flask import Flask
 
-app = Flask(__name__)
+# app = Flask(__name__)
 
-@app.route('/')
-def hello_world():
-    global device
-    return "crouton-demo ... <b>" + connectionStatus + "</b><br><br>The current JSON used is:<br>" + json.dumps(device)
+# @app.route('/')
+# def hello_world():
+#     global device
+#     return "crouton-demo ... <b>" + connectionStatus + "</b><br><br>The current JSON used is:<br>" + json.dumps(device)
 
 def updateValue(endpoint,valueKey,value):
     global device
@@ -357,9 +357,9 @@ if __name__ == '__main__':
     client.will_set('/outbox/'+clientName+'/lwt', 'anythinghere', 0, False)
 
 
-    # client.connect("localhost", 1883, 60)
-    client.connect("test.mosquitto.org", 1883, 60)
-    # client.connect("192.168.99.100", 1883, 60)
+    client.connect("localhost", 1883, 60)
+    #client.connect("test.mosquitto.org", 1883, 60)
+    #client.connect("192.168.1.140", 1883, 60)
 
 
 
@@ -370,7 +370,7 @@ if __name__ == '__main__':
 
     client.loop_start()
     update_values()
-    app.run(host='0.0.0.0',port=port)
+   # app.run(host='0.0.0.0',port=port)
 
     # while True:
     #     time.sleep(1)

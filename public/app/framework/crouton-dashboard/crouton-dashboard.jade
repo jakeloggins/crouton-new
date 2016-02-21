@@ -16,6 +16,9 @@ dom-module(id="crouton-dashboard")
 
 
   script.
+    var gridster;
+    var row_count = 1;
+    var col_count = 1;
     (function() {
       Polymer({
         is: "crouton-dashboard",
@@ -46,11 +49,25 @@ dom-module(id="crouton-dashboard")
           this.loadingComponents = [];
           this.container = document.getElementById("crouton-dashboard-container");
           this.numberOfCards = 0;
-          this.pckry = new Packery(this.container, {
-            columnWidth: 250,
-            rowHeight: 250,
-            gutter: 20
-          });
+
+          //- this.pckry = new Packery(this.container, {
+          //-   columnWidth: 250,
+          //-   rowHeight: 250,
+          //-   gutter: 20
+          //- });
+          gridster = $("#crouton-dashboard-container").gridster({
+            widget_base_dimensions: [250, 250],
+            widget_margins: [10, 10],
+            avoid_overlapped_widgets: true,
+            max_cols: 4,
+            min_cols: 4,
+            min_rows: 4,
+            draggable: {
+              handle: '.dragger'
+            }
+          }).data('gridster');
+          //console.log(gridster.cols);
+
         },
         updateValue: function(device,address,json){
           if(this.cardValues[device+address]){
@@ -79,7 +96,6 @@ dom-module(id="crouton-dashboard")
                   elementImport.rel = "import";
                   elementImport.href = path + elementName + "/" + elementName + ".jade";
                   elementImport.setAttribute("onload","handleLoad(event)");
-
                   document.head.appendChild(elementImport);
                   this.push("loadingComponents",elementName);
                 }
@@ -105,9 +121,9 @@ dom-module(id="crouton-dashboard")
           }
         },
         removeDeviceEndPoint: function(device,address,alreadyRemoved){
-          this.pckry.remove(this.cardIndex[device+address]);
+          //this.pckry.remove(this.cardIndex[device+address]);
+          gridster.remove_widget(this.cardIndex[device+address]);
           this.container.removeChild(this.cardIndex[device+address]);
-          this.relayout();
 
           delete this.cardIndex[device+address];
           delete this.cardValues[device+address];
@@ -124,38 +140,42 @@ dom-module(id="crouton-dashboard")
           return this.cardPrefix + device + "-" + address
         },
         relayout: function(element){
-          if(element){
-            this.container.appendChild(element);
-            this.pckry.appended(element);
-            var draggie = new Draggabilly(element, {
-                handle: '.dragger'
-            });
-            this.pckry.bindDraggabillyEvents(draggie);
-            element.style.opacity = "1";
-            this.pckry.layout();
-          } else {
-            if(this.pckry){
-              this.pckry.layout();
-            }
-          }
+          element.style.opacity = "1";
         },
         addPackeryCards: function(){
           if(window.getComputedStyle(document.getElementById("dashboardHolder"),null).getPropertyValue("display") != "none"){
             if(this.cardsToBeAdded[0]){
               for(var card = 0; card < this.cardsToBeAdded.length; card){
                 if(this.loadedComponents.indexOf(this.cardsToBeAdded[card].card) > -1){
-                  this.relayout(this.cardsToBeAdded[card].element);
+                    var element = this.cardsToBeAdded[card].element;
+                    this.container.appendChild(element);
+                    element.style.opacity = "1";
+                    // do crazy counting stuff here
+                    if (col_count > gridster.cols) {
+                      col_count = 1;
+                      row_count = row_count + 1;
+                    } else {
+                      col_count = col_count + 1;
+                    }
+
+                    gridster.add_widget(element, 1, 1, col_count, row_count);
+                    //console.log(gridster);
+                    //this.pckry.appended(element);
                   this.splice("cardsToBeAdded", card, 1);
                 } else {
                   card = card + 1;
                 }
               }
+              //- $("#crouton-dashboard-container").gridster({
+              //-   widget_base_dimensions: [250, 250],
+              //-   widget_margins: [20, 20],
+              //-   draggable: {
+              //-     handle: '.dragger'
+              //-   }
+              //- })
               if(this.cardsToBeAdded[0]){
                 this.async(this.addPackeryCards,100);
               }
-              this.async(this.relayout,500);
-            } else {
-              this.relayout();
             }
           } else {
             this.async(this.addPackeryCards,100);

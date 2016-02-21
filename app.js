@@ -33,7 +33,7 @@ app.get(['/','/crouton','/crouton/*'], function (req, res) {
   returnObj.css = [
     '/static/common/bower/font-awesome/css/font-awesome.min.css',
     '/static/common/css/toast.css',
-    // '/static/common/css/style.css',
+   // '/static/common/css/style.css',
     '/static/common/css/tmpl.css',
     '/static/common/bower/chartist/dist/chartist.min.css'
   ];
@@ -43,7 +43,8 @@ app.get(['/','/crouton','/crouton/*'], function (req, res) {
     '/static/common/bower/packery/dist/packery.pkgd.min.js',
     '/static/common/bower/draggabilly/dist/draggabilly.pkgd.min.js',
     '/static/common/bower/jquery/dist/jquery.min.js',
-    '/static/common/bower/chartist/dist/chartist.min.js'
+    '/static/common/bower/chartist/dist/chartist.min.js',
+    '/static/common/bower/gridster/dist/jquery.gridster.js'
   ];
   returnObj.frameworkFiles = frameworkFiles;
   res.render('index',returnObj);
@@ -83,6 +84,8 @@ app.use(function(req, res, next) {
 /*
 Start the app
 */
+
+
 var port = process.env.PORT || 8080;
 var server = app.listen(port, function () {
   var host = process.env.VCAP_APP_HOST || 'localhost';
