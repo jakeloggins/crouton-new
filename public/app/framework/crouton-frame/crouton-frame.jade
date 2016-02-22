@@ -17,9 +17,9 @@ dom-module(id="crouton-frame")
         //NAVIGATION
         crouton-navigation#crouton-navigation(current-page="{{currentPage}}")
 
-        //GETTING STARTED - commented out
+        //GETTING STARTED
         div(id="gettingStarted" class$="{{selectedPage('gettingStarted',currentPage,'holder')}}")
-            crouton-getting-started
+          crouton-getting-started
 
         // DASHBOARD
         div(id="dashboardHolder" class$="{{selectedPage('dashboard',currentPage,'holder')}}")

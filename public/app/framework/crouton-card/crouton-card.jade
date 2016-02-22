@@ -3,7 +3,7 @@ link(rel="import", href="/static/common/bower/polymer/polymer.html")
 dom-module(id="crouton-card")
   template
     link(rel="stylesheet", href="crouton-card.css")
-    div(class$="dragselect {{checkDropShadow(dropShadow)}}")
+    div(class$="{{checkDropShadow(dropShadow)}}")
       div.cardInner
         content
       div(class$="{{checkBottomBar(bottomBar)}}")

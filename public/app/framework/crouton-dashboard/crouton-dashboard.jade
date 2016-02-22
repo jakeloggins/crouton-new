@@ -19,6 +19,7 @@ dom-module(id="crouton-dashboard")
     var gridster;
     var row_count = 1;
     var col_count = 1;
+    var widgets = [];
     (function() {
       Polymer({
         is: "crouton-dashboard",
@@ -57,14 +58,15 @@ dom-module(id="crouton-dashboard")
           //- });
           gridster = $("#crouton-dashboard-container").gridster({
             widget_base_dimensions: [250, 250],
-            widget_margins: [10, 10],
+            widget_margins: [20, 20],
             avoid_overlapped_widgets: true,
-            max_cols: 4,
-            min_cols: 4,
+            max_cols: 3,
+            min_cols: 3,
             min_rows: 4,
-            draggable: {
-              handle: '.dragger'
-            }
+            autogenerate_stylesheet: true,
+            //- draggable: {
+            //-   handle: '.dragger'
+            //- }
           }).data('gridster');
           //console.log(gridster.cols);
 
@@ -157,9 +159,9 @@ dom-module(id="crouton-dashboard")
                     } else {
                       col_count = col_count + 1;
                     }
+                    widgets = [element, 1, 1, col_count, row_count];
+                    gridster.add_widget.apply(gridster, widgets);
 
-                    gridster.add_widget(element, 1, 1, col_count, row_count);
-                    //console.log(gridster);
                     //this.pckry.appended(element);
                   this.splice("cardsToBeAdded", card, 1);
                 } else {

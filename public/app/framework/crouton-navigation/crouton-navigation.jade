@@ -4,13 +4,12 @@ link(rel="import", href="/static/common/bower/polymer/polymer.html")
 dom-module(id="crouton-navigation")
   template
     link(rel="stylesheet", href="crouton-navigation.css")
-    // old logo, and sign up crap
-      div#logoTab
-        div.logoHolder
-          div.logoText Crouton
-      div.rightSide
-          div(on-click="comingSoon").buttonText.signUpText Sign up
-          div(on-click="comingSoon").buttonText.logInText Log in
+    div#logoTab
+      //div.logoHolder
+        div.logoText Crouton
+        div.rightSide
+        div(on-click="comingSoon").buttonText.signUpText Sign up
+        div(on-click="comingSoon").buttonText.logInText Log in
     div#crouton-page-navigation.grid__col.grid__col--12-of-12
       div.navbar
         span(data-page="gettingStarted", class$="{{selectedNavigation('gettingStarted',currentPage,'navTab')}}", on-click="changePage") Getting Started
