@@ -8,10 +8,8 @@ link(rel="import", href="/static/common/bower/paper-dropdown-menu/paper-dropdown
 link(rel="import", href="/static/common/bower/paper-toolbar/paper-toolbar.html")
 link(rel="import", href="/static/common/bower/paper-icon-button/paper-icon-button.html")
 
-link(rel="import", href="/static/common/bower/paper-dialog/paper-dialog.html")
-link(rel="import", href="/static/common/bower/paper-dialog-behavior/paper-dialog-behavior.html")
-link(rel="import", href="/static/common/bower/paper-dialog-scrollable/paper-dialog-scrollable.html")
-link(rel="import", href="/static/common/bower/neon-animation/neon-animations.html")
+link(rel="import", href="/static/common/bower/paper-tabs/paper-tabs.html")
+link(rel="import", href="/static/common/bower/paper-tabs/paper-tabs.html")
 
 link(rel="import", href="/static/common/bower/iron-form/iron-form.html")
 link(rel="import", href="/app-render/framework/crouton-card/crouton-card.jade")
@@ -35,13 +33,14 @@ dom-module(id="crouton-devices")
       div
         paper-toolbar
           paper-input.grid__col--3-of-12(label="Enter new device name", type="text", value="{{newDeviceName::input}}", on-keypress="keyCheck", required)
-          paper-item(id="simple_text", on-click="validateCardType") Text
-          paper-item(id="simple_input", on-click="validateCardType") Input
-          paper-item(id="simple_slider", on-click="validateCardType") Slider
-          paper-item(id="simple_button", on-click="validateCardType") Button
-          paper-item(id="simple_toggle", on-click="validateCardType") Toggle
-          paper-item(id="line_chart", on-click="validateCardType") Line Chart
-          paper-item(id="rgb_slider", on-click="validateCardType") RGB Slider
+          paper-tabs(id="card_menu", selected="{{card_menu_selection}}" attr-for-selected="id", on-click="validateCardType", noInk)
+            paper-tab(id="simple_text") Text
+            paper-tab(id="simple_input") Input
+            paper-tab(id="simple_slider") Slider
+            paper-tab(id="simple_button") Button
+            paper-tab(id="simple_toggle") Toggle
+            paper-tab(id="line_chart") Line Chart
+            paper-tab(id="rgb_slider") RGB Slider
           paper-input.grid__col--3-of-12(label="Enter path", type="text", value="{{newPath::input}}", on-keypress="keyCheck", required)
         paper-toolbar
           paper-input.grid__col--3-of-12(label="Enter card title", type="text", value="{{newCardTitle::input}}", on-keypress="keyCheck", required)
@@ -64,12 +63,16 @@ dom-module(id="crouton-devices")
         color: grey;
       };
     }
-    paper-item{
+    paper-tabs{
+      --paper-tabs-selection-bar-color: rgb(78,205,196);
+    }
+    paper-tab{
       padding-left: 10px;
       padding-right: 10px;
       padding-top: 30px;
       padding-bottom: 0px;
       font-size: 16px;
+      --paper-tab-ink: rgb(78,205,196);
     }
     paper-input{
       --paper-input-container-focus-color: grey;
@@ -98,6 +101,7 @@ dom-module(id="crouton-devices")
           this.UnitsOptional = '';
           this.MinOptional = '';
           this.MaxOptional = '';
+          this.card_menu_selection = '';
 
           this.deviceCardPrefix = "crouton-device-";
 
@@ -127,9 +131,7 @@ dom-module(id="crouton-devices")
           }
         },
         validateCardType: function(e){
-          var override = false;
-
-          switch (e.target.id) {
+          switch (this.card_menu_selection) {
             case 'simple_text':
                 this.newUnitsEnabled = true;
                 this.newUnitsMinEnabled = false;
@@ -161,7 +163,7 @@ dom-module(id="crouton-devices")
                 this.newUnitsMinEnabled = true;
                 this.newUnitsMaxEnabled = true;
 
-                this.newUnitsRequired = true;
+                this.newUnitsRequired = false;
                 this.newUnitsMinRequired = true;
                 this.newUnitsMaxRequired = true;
 
@@ -190,13 +192,12 @@ dom-module(id="crouton-devices")
                 this.newUnitsMaxEnabled = true;
 
                 this.newUnitsRequired = false;
-                this.newUnitsMinRequired = true;
-                this.newUnitsMaxRequired = true;
+                this.newUnitsMinRequired = false;
+                this.newUnitsMaxRequired = false;
 
                 this.UnitsOptional = '';
-                this.MinOptional = 'OFF';
-                this.MaxOptional = 'ON';
-
+                this.MinOptional = 'default: "OFF"';
+                this.MaxOptional = 'default: "ON"';
                 break;
             case 'line_chart':
                 this.newUnitsEnabled = false;
@@ -204,12 +205,12 @@ dom-module(id="crouton-devices")
                 this.newUnitsMaxEnabled = true;
 
                 this.newUnitsRequired = false;
-                this.newUnitsMinRequired = true;
-                this.newUnitsMaxRequired = true;
+                this.newUnitsMinRequired = false;
+                this.newUnitsMaxRequired = false;
 
                 this.UnitsOptional = '';
-                this.MinOptional = 'min y-axis label (required)';
-                this.MaxOptional = 'max y-axis label (required)';
+                this.MinOptional = 'min y-axis (default: 0)';
+                this.MaxOptional = 'max y-axis (default: 100)';
                 break;
             case 'rgb_slider':
                 this.newUnitsEnabled = false;
