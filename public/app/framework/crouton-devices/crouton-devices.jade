@@ -8,6 +8,11 @@ link(rel="import", href="/static/common/bower/paper-dropdown-menu/paper-dropdown
 link(rel="import", href="/static/common/bower/paper-toolbar/paper-toolbar.html")
 link(rel="import", href="/static/common/bower/paper-icon-button/paper-icon-button.html")
 
+link(rel="import", href="/static/common/bower/paper-dialog/paper-dialog.html")
+link(rel="import", href="/static/common/bower/paper-dialog-behavior/paper-dialog-behavior.html")
+link(rel="import", href="/static/common/bower/paper-dialog-scrollable/paper-dialog-scrollable.html")
+link(rel="import", href="/static/common/bower/neon-animation/neon-animations.html")
+
 link(rel="import", href="/static/common/bower/iron-form/iron-form.html")
 link(rel="import", href="/app-render/framework/crouton-card/crouton-card.jade")
 link(rel="import", href="/app-render/framework/crouton-device-card/crouton-device-card.jade")
@@ -29,24 +34,27 @@ dom-module(id="crouton-devices")
         crouton-device-card(id="{{deviceId(item)}}", device-name="{{item}}")
       div
         paper-toolbar
-          paper-input.grid__col--2-of-12(label="Enter new device name", type="text", value="{{newDeviceName::input}}", on-keypress="keyCheck", required)
-          paper-item(id="simple_text", on-click="validateCardType") Simple Text
-          paper-item(id="simple_input", on-click="validateCardType") Simple Input
-          paper-item(id="simple_slider", on-click="validateCardType") Simple Slider
-          paper-item(id="simple_button", on-click="validateCardType") Simple Button
-          paper-item(id="simple_toggle", on-click="validateCardType") Simple Toggle
+          paper-input.grid__col--3-of-12(label="Enter new device name", type="text", value="{{newDeviceName::input}}", on-keypress="keyCheck", required)
+          paper-item(id="simple_text", on-click="validateCardType") Text
+          paper-item(id="simple_input", on-click="validateCardType") Input
+          paper-item(id="simple_slider", on-click="validateCardType") Slider
+          paper-item(id="simple_button", on-click="validateCardType") Button
+          paper-item(id="simple_toggle", on-click="validateCardType") Toggle
           paper-item(id="line_chart", on-click="validateCardType") Line Chart
-          paper-item(id="donut_chart", on-click="validateCardType") Donut Chart
           paper-item(id="rgb_slider", on-click="validateCardType") RGB Slider
           paper-input.grid__col--3-of-12(label="Enter path", type="text", value="{{newPath::input}}", on-keypress="keyCheck", required)
         paper-toolbar
-          paper-input.grid__col--2-of-12(label="Enter card title", type="text", value="{{newCardTitle::input}}", on-keypress="keyCheck", required)
-          paper-input.grid__col--3-of-12(label="{{UnitsOptional}}", type="text", value="{{newUnits::input}}", on-keypress="keyCheck", disabled="{{!newUnitsDisabled}}", required="{{newUnitsRequired}}")
-          paper-input.grid__col--2-of-12(label="{{MinOptional}}", type="text", value="{{newUnitsMin::input}}", on-keypress="keyCheck", disabled="{{!newUnitsMinDisabled}}", required="{{newUnitsMinRequired}}")
-          paper-input.grid__col--2-of-12(label="{{MaxOptional}}", type="text", value="{{newUnitsMax::input}}", on-keypress="keyCheck", disabled="{{!newUnitsMaxDisabled}}", required="{{newUnitsMaxRequired}}")  
+          paper-input.grid__col--3-of-12(label="Enter card title", type="text", value="{{newCardTitle::input}}", on-keypress="keyCheck", required)
+          paper-input.grid__col--2-of-12(label="{{UnitsOptional}}", type="text", value="{{newUnits::input}}", on-keypress="keyCheck", disabled="{{!newUnitsEnabled}}", required="{{newUnitsRequired}}")
+          paper-input.grid__col--2-of-12(label="{{MinOptional}}", type="text", value="{{newUnitsMin::input}}", on-keypress="keyCheck", disabled="{{!newUnitsMinEnabled}}", required="{{newUnitsMinRequired}}")
+          paper-input.grid__col--2-of-12(label="{{MaxOptional}}", type="text", value="{{newUnitsMax::input}}", on-keypress="keyCheck", disabled="{{!newUnitsMaxEnabled}}", required="{{newUnitsMaxRequired}}")  
           div.addButtons.grid__col--3-of-12
             paper-button(type="submit", disabled$="{{validateNewDeviceInput(newDeviceName,newPath,newCardTitle)}}", on-click="addDevice", raised).rightBtn Add Device
-
+        
+        //paper-toolbar
+          paper-dialog
+            paper-item Header
+            paper-dialog-scrollable Lorem ipsum...
 
 
   style(is='custom-style').
@@ -81,15 +89,15 @@ dom-module(id="crouton-devices")
           this.newUnits = '';
           this.newUnitsMin = '';
           this.newUnitsMax = '';
-          this.newUnitsDisabled = false;
-          this.newUnitsMinDisabled = false;
-          this.newUnitsMaxDisabled = false;
+          this.newUnitsEnabled = false;
+          this.newUnitsMinEnabled = false;
+          this.newUnitsMaxEnabled = false;
           this.newUnitsRequired = false;
           this.newUnitsMinRequired = false;
           this.newUnitsMaxRequired = false;
-          this.UnitsOptional = 'Enter units (optional)';
-          this.MinOptional = 'min value (optional)';
-          this.MaxOptional = 'max value (optional)';
+          this.UnitsOptional = '';
+          this.MinOptional = '';
+          this.MaxOptional = '';
 
           this.deviceCardPrefix = "crouton-device-";
 
@@ -119,87 +127,103 @@ dom-module(id="crouton-devices")
           }
         },
         validateCardType: function(e){
-          var allfalse = false;
-          var alltrue = false;
+          var override = false;
 
           switch (e.target.id) {
             case 'simple_text':
-                this.newUnitsDisabled = true;
-                this.newUnitsMinDisabled = false;
-                this.newUnitsMaxDisabled = false;
+                this.newUnitsEnabled = true;
+                this.newUnitsMinEnabled = false;
+                this.newUnitsMaxEnabled = false;
 
                 this.newUnitsRequired = false;
                 this.newUnitsMinRequired = false;
                 this.newUnitsMaxRequired = false;
+
+                this.UnitsOptional = 'Enter units (optional)';
+                this.MinOptional = '';
+                this.MaxOptional = '';
                 break;
             case 'simple_input':
-                allfalse = true;
-                break;
-            case 'simple_slider':
-                alltrue = true;
-                break;
-            case 'simple_button':
-                allfalse = true;
-                break;
-            case 'simple_toggle':
-                allfalse = true;
-                break;
-            case 'line_chart':
-                allfalse = true;
-                break;    
-            case 'donut_chart':
-                allfalse = true;
-                break;
-            case 'rgb_slider':
-                this.newUnitsDisabled = false;
-                this.newUnitsMinDisabled = true;
-                this.newUnitsMaxDisabled = true;
+                this.newUnitsEnabled = false;
+                this.newUnitsMinEnabled = false;
+                this.newUnitsMaxEnabled = false;
 
                 this.newUnitsRequired = false;
                 this.newUnitsMinRequired = false;
                 this.newUnitsMaxRequired = false;
-                break;
-          }
-          if (allfalse) {
-            this.newUnitsDisabled = false;
-            this.newUnitsMinDisabled = false;
-            this.newUnitsMaxDisabled = false;
-            this.newUnitsRequired = false;
-            this.newUnitsMinRequired = false;
-            this.newUnitsMaxRequired = false;
-          }
-          if (alltrue) {
-            this.newUnitsDisabled = true;
-            this.newUnitsMinDisabled = true;
-            this.newUnitsMaxDisabled = true;
-            this.newUnitsRequired = true;
-            this.newUnitsMinRequired = true;
-            this.newUnitsMaxRequired = true;
-          }
-          if (!this.newUnitsDisabled) {
-            this.newUnits = '';
-          }
-          if (!this.newUnitsMinDisabled) {
-            this.newUnitsMin = '';
-          } 
-          if (!this.newUnitsMaxDisabled) {
-            this.newUnitsMax = '';
-          } 
 
-          if (this.newUnitsRequired) {
-            this.UnitsOptional = 'Enter units (required)';
-          } else {
-            this.UnitsOptional = 'Enter units (optional)';
-          }
-          if (this.newUnitsMinRequired) {
-            this.MinOptional = 'min value (required)';
-          } else {
-            this.MinOptional = 'min value (optional)';
-          }
-          if (this.newUnitsMaxRequired) {
-            this.MaxOptional = 'max value (required)';
-          } else {
-            this.MaxOptional = 'max value (optional)';
+                this.UnitsOptional = '';
+                this.MinOptional = '';
+                this.MaxOptional = '';
+                break;
+            case 'simple_slider':
+                this.newUnitsEnabled = true;
+                this.newUnitsMinEnabled = true;
+                this.newUnitsMaxEnabled = true;
+
+                this.newUnitsRequired = true;
+                this.newUnitsMinRequired = true;
+                this.newUnitsMaxRequired = true;
+
+                this.UnitsOptional = 'Enter units (optional)';
+                this.MinOptional = 'min value (required)';
+                this.MaxOptional = 'max value (required)';
+                break;
+            case 'simple_button':
+                this.newUnitsEnabled = true;
+                this.newUnitsMinEnabled = false;
+                this.newUnitsMaxEnabled = false;
+
+                this.newUnitsRequired = false;
+                this.newUnitsMinRequired = false;
+                this.newUnitsMaxRequired = false;
+
+                this.UnitsOptional = 'Enter icon name (optional)';
+                this.MinOptional = '';
+                this.MaxOptional = '';
+                break;
+            case 'simple_toggle':
+                override = true;
+                
+                this.newUnitsEnabled = false;
+                this.newUnitsMinEnabled = true;
+                this.newUnitsMaxEnabled = true;
+
+                this.newUnitsRequired = false;
+                this.newUnitsMinRequired = true;
+                this.newUnitsMaxRequired = true;
+
+                this.UnitsOptional = '';
+                this.MinOptional = 'OFF';
+                this.MaxOptional = 'ON';
+
+                break;
+            case 'line_chart':
+                this.newUnitsEnabled = false;
+                this.newUnitsMinEnabled = true;
+                this.newUnitsMaxEnabled = true;
+
+                this.newUnitsRequired = false;
+                this.newUnitsMinRequired = true;
+                this.newUnitsMaxRequired = true;
+
+                this.UnitsOptional = '';
+                this.MinOptional = 'min y-axis label (required)';
+                this.MaxOptional = 'max y-axis label (required)';
+                break;
+            case 'rgb_slider':
+                this.newUnitsEnabled = false;
+                this.newUnitsMinEnabled = true;
+                this.newUnitsMaxEnabled = true;
+
+                this.newUnitsRequired = false;
+                this.newUnitsMinRequired = true;
+                this.newUnitsMaxRequired = true;
+
+                this.UnitsOptional = '';
+                this.MinOptional = 'min value (required)';
+                this.MaxOptional = 'max value (required)';
+                break;
           }
         },
         validateNewDeviceInput: function(newDeviceName,newPath,newCardTitle){
