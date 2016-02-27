@@ -33,7 +33,7 @@ dom-module(id="crouton-devices")
       div
         paper-toolbar
           paper-input.grid__col--3-of-12(label="Enter new device name", type="text", value="{{newDeviceName::input}}", on-keypress="keyCheck", required)
-          paper-tabs(id="card_menu", selected="{{card_menu_selection}}" attr-for-selected="id", on-click="validateCardType", noInk)
+          paper-tabs(id="card_menu", selected="{{cardMenuSelection}}" attr-for-selected="id", on-click="validateCardType", noInk)
             paper-tab(id="simple_text") Text
             paper-tab(id="simple_input") Input
             paper-tab(id="simple_slider") Slider
@@ -48,7 +48,7 @@ dom-module(id="crouton-devices")
           paper-input.grid__col--2-of-12(label="{{MinOptional}}", type="text", value="{{newUnitsMin::input}}", on-keypress="keyCheck", disabled="{{!newUnitsMinEnabled}}", required="{{newUnitsMinRequired}}")
           paper-input.grid__col--2-of-12(label="{{MaxOptional}}", type="text", value="{{newUnitsMax::input}}", on-keypress="keyCheck", disabled="{{!newUnitsMaxEnabled}}", required="{{newUnitsMaxRequired}}")  
           div.addButtons.grid__col--3-of-12
-            paper-button(type="submit", disabled$="{{validateNewDeviceInput(newDeviceName,newPath,newCardTitle)}}", on-click="addDevice", raised).rightBtn Add Device
+            paper-button(type="submit", disabled$="{{validateNewDeviceInput(newDeviceName,newPath,newCardTitle,cardMenuSelection)}}", on-click="addDevice", raised).rightBtn Add Device
         
         //paper-toolbar
           paper-dialog
@@ -101,7 +101,7 @@ dom-module(id="crouton-devices")
           this.UnitsOptional = '';
           this.MinOptional = '';
           this.MaxOptional = '';
-          this.card_menu_selection = '';
+          this.cardMenuSelection = '';
 
           this.deviceCardPrefix = "crouton-device-";
 
@@ -131,7 +131,7 @@ dom-module(id="crouton-devices")
           }
         },
         validateCardType: function(e){
-          switch (this.card_menu_selection) {
+          switch (this.cardMenuSelection) {
             case 'simple_text':
                 this.newUnitsEnabled = true;
                 this.newUnitsMinEnabled = false;
@@ -227,9 +227,9 @@ dom-module(id="crouton-devices")
                 break;
           }
         },
-        validateNewDeviceInput: function(newDeviceName,newPath,newCardTitle){
+        validateNewDeviceInput: function(newDeviceName,newPath,newCardTitle,cardMenuSelection){
           //making sure there is a name not just white spaces... also need to filter special characteres later too
-          if((newDeviceName && newPath && newCardTitle === null) || (newCardTitle.match(/^ *$/) || newDeviceName.match(/^ *$/) || newPath.match(/^ *$/)) !== null ){
+          if((newDeviceName && newPath && newCardTitle && cardMenuSelection === null) || (newCardTitle.match(/^ *$/) || newDeviceName.match(/^ *$/) || newPath.match(/^ *$/) || cardMenuSelection.match(/^ *$/) !== null)){
             return true
           } else {
             return false
@@ -252,7 +252,6 @@ dom-module(id="crouton-devices")
           var that = this;
           // this is how you grab stuff from the forms
           // assign values to buttons, then see which one is true
-          console.log(this.newPath);
           if(typeof(name) != "string") {
             name = this.newDeviceName;
           }
