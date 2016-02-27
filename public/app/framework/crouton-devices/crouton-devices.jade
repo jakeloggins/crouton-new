@@ -258,6 +258,21 @@ dom-module(id="crouton-devices")
           if(this.devices.indexOf(name) === -1){
             this.push('devices', name);
             this.newDeviceName = '';
+            this.newPath = '';
+            this.newCardTitle = '';
+            this.newUnits = '';
+            this.newUnitsMin = '';
+            this.newUnitsMax = '';
+            this.UnitsOptional = '';
+            this.MinOptional = '';
+            this.MaxOptional = '';
+            this.cardMenuSelection = '';
+            this.newUnitsEnabled = false;
+            this.newUnitsMinEnabled = false;
+            this.newUnitsMaxEnabled = false;
+            this.newUnitsRequired = false;
+            this.newUnitsMinRequired = false;
+            this.newUnitsMaxRequired = false;
             this.async(function(){
             this.connectDevice(name);
             }, 100);
