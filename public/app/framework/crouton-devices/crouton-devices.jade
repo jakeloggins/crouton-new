@@ -34,6 +34,7 @@ dom-module(id="crouton-devices")
         paper-toolbar
           paper-input.grid__col--3-of-12(label="Enter new device name", type="text", value="{{newDeviceName::input}}", on-keypress="keyCheck", required)
           paper-tabs(id="card_menu", selected="{{cardMenuSelection}}" attr-for-selected="id", on-click="validateCardType", noInk)
+            paper-tab(id="auto") Auto Import
             paper-tab(id="simple_text") Text
             paper-tab(id="simple_input") Input
             paper-tab(id="simple_slider") Slider
@@ -87,7 +88,8 @@ dom-module(id="crouton-devices")
           var that = this;
           this.devices = [];
 
-          this.clearAllFalse(toggle=false);
+          this.cardMenuSelection = '';
+          this.clearAllFalse();
 
           this.deviceCardPrefix = "crouton-device-";
 
@@ -105,7 +107,7 @@ dom-module(id="crouton-devices")
         listeners: {
 
         },
-        clearAllFalse: function(toggle=true){
+        clearAllFalse: function() {
           this.newDeviceName = '';
           this.newPath = '';
           this.newCardTitle = '';
@@ -118,9 +120,6 @@ dom-module(id="crouton-devices")
           this.UnitsOptional = '';
           this.MinOptional = '';
           this.MaxOptional = '';
-          if (!toggle) {
-            this.cardMenuSelection = '';
-          }
         },
         attached: function(){
           if (this.mqttCard.storageAvailable('localStorage')) {
@@ -135,6 +134,9 @@ dom-module(id="crouton-devices")
         },
         validateCardType: function(e){
           switch (this.cardMenuSelection) {
+            case 'auto':
+                this.clearAllFalse();
+                break;
             case 'simple_text':
                 this.clearAllFalse();
 
@@ -221,11 +223,16 @@ dom-module(id="crouton-devices")
           }
         },
         validateNewDeviceInput: function(newDeviceName,newPath,newCardTitle,cardMenuSelection){
-          //making sure there is a name not just white spaces... also need to filter special characteres later too
+          //making sure there is a name not just white spaces... also need to filter special characteres later too .. true means add device button is disabled
           if((newDeviceName && newPath && newCardTitle && cardMenuSelection === null) || (newCardTitle.match(/^ *$/) || newDeviceName.match(/^ *$/) || newPath.match(/^ *$/) || cardMenuSelection.match(/^ *$/) !== null)){
-            return true
+              //unless it is set to auto, in which case only device name needs to be filled in
+              if (cardMenuSelection == 'auto' && !(newDeviceName === null || newDeviceName.match(/^ *$/) !== null)) {
+                return false
+              } else {
+                  return true
+              }
           } else {
-            return false
+              return false
           }
         },
         deviceId: function(name){
@@ -251,7 +258,8 @@ dom-module(id="crouton-devices")
           }
           if(this.devices.indexOf(name) === -1){
             this.push('devices', name);
-            this.clearAllFalse(toggle=false);
+            this.cardMenuSelection = '';
+            this.clearAllFalse();
             this.async(function(){
             this.connectDevice(name);
             }, 100);
