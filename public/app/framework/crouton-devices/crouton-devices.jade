@@ -44,9 +44,9 @@ dom-module(id="crouton-devices")
           paper-input.grid__col--3-of-12(label="Enter path", type="text", value="{{newPath::input}}", on-keypress="keyCheck", required)
         paper-toolbar
           paper-input.grid__col--3-of-12(label="Enter card title", type="text", value="{{newCardTitle::input}}", on-keypress="keyCheck", required)
-          paper-input.grid__col--2-of-12(label="{{UnitsOptional}}", type="text", value="{{newUnits::input}}", on-keypress="keyCheck", disabled="{{!newUnitsEnabled}}", required="{{newUnitsRequired}}")
-          paper-input.grid__col--2-of-12(label="{{MinOptional}}", type="text", value="{{newUnitsMin::input}}", on-keypress="keyCheck", disabled="{{!newUnitsMinEnabled}}", required="{{newUnitsMinRequired}}")
-          paper-input.grid__col--2-of-12(label="{{MaxOptional}}", type="text", value="{{newUnitsMax::input}}", on-keypress="keyCheck", disabled="{{!newUnitsMaxEnabled}}", required="{{newUnitsMaxRequired}}")  
+          paper-input.grid__col--2-of-12(label="{{UnitsOptional}}", type="text", value="{{newUnits::input}}", on-keypress="keyCheck", disabled="{{!newUnitsEnabled}}", always-float-label)
+          paper-input.grid__col--2-of-12(label="{{MinOptional}}", type="text", value="{{newUnitsMin::input}}", on-keypress="keyCheck", disabled="{{!newUnitsMinEnabled}}", always-float-label)
+          paper-input.grid__col--2-of-12(label="{{MaxOptional}}", type="text", value="{{newUnitsMax::input}}", on-keypress="keyCheck", disabled="{{!newUnitsMaxEnabled}}", always-float-label)  
           div.addButtons.grid__col--3-of-12
             paper-button(type="submit", disabled$="{{validateNewDeviceInput(newDeviceName,newPath,newCardTitle,cardMenuSelection)}}", on-click="addDevice", raised).rightBtn Add Device
         
@@ -86,22 +86,8 @@ dom-module(id="crouton-devices")
         ready: function() {
           var that = this;
           this.devices = [];
-          this.newDeviceName = '';
-          this.newPath = '';
-          this.newCardTitle = '';
-          this.newUnits = '';
-          this.newUnitsMin = '';
-          this.newUnitsMax = '';
-          this.newUnitsEnabled = false;
-          this.newUnitsMinEnabled = false;
-          this.newUnitsMaxEnabled = false;
-          this.newUnitsRequired = false;
-          this.newUnitsMinRequired = false;
-          this.newUnitsMaxRequired = false;
-          this.UnitsOptional = '';
-          this.MinOptional = '';
-          this.MaxOptional = '';
-          this.cardMenuSelection = '';
+
+          this.clearAllFalse(toggle=false);
 
           this.deviceCardPrefix = "crouton-device-";
 
@@ -119,6 +105,23 @@ dom-module(id="crouton-devices")
         listeners: {
 
         },
+        clearAllFalse: function(toggle=true){
+          this.newDeviceName = '';
+          this.newPath = '';
+          this.newCardTitle = '';
+          this.newUnits = '';
+          this.newUnitsMin = '';
+          this.newUnitsMax = '';
+          this.newUnitsEnabled = false;
+          this.newUnitsMinEnabled = false;
+          this.newUnitsMaxEnabled = false;
+          this.UnitsOptional = '';
+          this.MinOptional = '';
+          this.MaxOptional = '';
+          if (!toggle) {
+            this.cardMenuSelection = '';
+          }
+        },
         attached: function(){
           if (this.mqttCard.storageAvailable('localStorage')) {
             var deviceList = localStorage.getItem("crouton-devicelist");
@@ -133,97 +136,87 @@ dom-module(id="crouton-devices")
         validateCardType: function(e){
           switch (this.cardMenuSelection) {
             case 'simple_text':
+                this.clearAllFalse();
+
                 this.newUnitsEnabled = true;
                 this.newUnitsMinEnabled = false;
                 this.newUnitsMaxEnabled = false;
-
-                this.newUnitsRequired = false;
-                this.newUnitsMinRequired = false;
-                this.newUnitsMaxRequired = false;
 
                 this.UnitsOptional = 'Enter units (optional)';
                 this.MinOptional = '';
                 this.MaxOptional = '';
                 break;
             case 'simple_input':
-                this.newUnitsEnabled = false;
-                this.newUnitsMinEnabled = false;
-                this.newUnitsMaxEnabled = false;
-
-                this.newUnitsRequired = false;
-                this.newUnitsMinRequired = false;
-                this.newUnitsMaxRequired = false;
-
-                this.UnitsOptional = '';
-                this.MinOptional = '';
-                this.MaxOptional = '';
+                this.clearAllFalse();
                 break;
             case 'simple_slider':
+                this.clearAllFalse();
+
                 this.newUnitsEnabled = true;
                 this.newUnitsMinEnabled = true;
                 this.newUnitsMaxEnabled = true;
 
-                this.newUnitsRequired = false;
-                this.newUnitsMinRequired = true;
-                this.newUnitsMaxRequired = true;
+                this.newUnitsMin = '0';
+                this.newUnitsMax = '100';
 
                 this.UnitsOptional = 'Enter units (optional)';
-                this.MinOptional = 'min value (required)';
-                this.MaxOptional = 'max value (required)';
+                this.MinOptional = 'min value (default: 0)';
+                this.MaxOptional = 'max value (default: 100)';
                 break;
             case 'simple_button':
+                this.clearAllFalse();
+
                 this.newUnitsEnabled = true;
                 this.newUnitsMinEnabled = false;
                 this.newUnitsMaxEnabled = false;
 
-                this.newUnitsRequired = false;
-                this.newUnitsMinRequired = false;
-                this.newUnitsMaxRequired = false;
+                this.newUnits = 'bell';
 
                 this.UnitsOptional = 'Enter icon name (optional)';
                 this.MinOptional = '';
                 this.MaxOptional = '';
                 break;
             case 'simple_toggle':
-                override = true;
+                this.clearAllFalse();
                 
                 this.newUnitsEnabled = false;
                 this.newUnitsMinEnabled = true;
                 this.newUnitsMaxEnabled = true;
 
-                this.newUnitsRequired = false;
-                this.newUnitsMinRequired = false;
-                this.newUnitsMaxRequired = false;
+                this.newUnitsMin = 'OFF';
+                this.newUnitsMax = 'ON';
 
                 this.UnitsOptional = '';
                 this.MinOptional = 'default: "OFF"';
                 this.MaxOptional = 'default: "ON"';
                 break;
             case 'line_chart':
+                this.clearAllFalse();
+
                 this.newUnitsEnabled = false;
                 this.newUnitsMinEnabled = true;
                 this.newUnitsMaxEnabled = true;
 
-                this.newUnitsRequired = false;
-                this.newUnitsMinRequired = false;
-                this.newUnitsMaxRequired = false;
+                this.newUnitsMin = '0';
+                this.newUnitsMax = '100';
 
                 this.UnitsOptional = '';
-                this.MinOptional = 'min y-axis (default: 0)';
-                this.MaxOptional = 'max y-axis (default: 100)';
+                this.MinOptional = 'min y-axis label (default: 0)';
+                this.MaxOptional = 'max y-axis label (default: 100)';
                 break;
             case 'rgb_slider':
+                this.clearAllFalse();
+
                 this.newUnitsEnabled = false;
                 this.newUnitsMinEnabled = true;
                 this.newUnitsMaxEnabled = true;
 
-                this.newUnitsRequired = false;
-                this.newUnitsMinRequired = true;
-                this.newUnitsMaxRequired = true;
+                this.newUnitsMin = '0';
+                this.newUnitsMax = '255';
 
                 this.UnitsOptional = '';
-                this.MinOptional = 'min value (required)';
-                this.MaxOptional = 'max value (required)';
+                this.MinOptional = 'min value (default: 0)';
+                this.MaxOptional = 'max value (default: 255)';
                 break;
           }
         },
@@ -250,29 +243,15 @@ dom-module(id="crouton-devices")
         },
         addDevice: function(name){
           var that = this;
-          // this is how you grab stuff from the forms
-          // assign values to buttons, then see which one is true
+
+
+
           if(typeof(name) != "string") {
             name = this.newDeviceName;
           }
           if(this.devices.indexOf(name) === -1){
             this.push('devices', name);
-            this.newDeviceName = '';
-            this.newPath = '';
-            this.newCardTitle = '';
-            this.newUnits = '';
-            this.newUnitsMin = '';
-            this.newUnitsMax = '';
-            this.UnitsOptional = '';
-            this.MinOptional = '';
-            this.MaxOptional = '';
-            this.cardMenuSelection = '';
-            this.newUnitsEnabled = false;
-            this.newUnitsMinEnabled = false;
-            this.newUnitsMaxEnabled = false;
-            this.newUnitsRequired = false;
-            this.newUnitsMinRequired = false;
-            this.newUnitsMaxRequired = false;
+            this.clearAllFalse(toggle=false);
             this.async(function(){
             this.connectDevice(name);
             }, 100);
