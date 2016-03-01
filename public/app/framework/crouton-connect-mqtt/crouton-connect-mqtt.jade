@@ -244,6 +244,8 @@ dom-module(id="crouton-connect-mqtt")
           this.client.unsubscribe(address);
         },
         connectDevice: function(name,object){
+          
+          
           this.subscribeAddress("/outbox/"+name+"/deviceInfo");
           this.client.publish("/inbox/"+name+"/deviceInfo", "get");
           this.checkStatusAsync[name] = this.async(function(){

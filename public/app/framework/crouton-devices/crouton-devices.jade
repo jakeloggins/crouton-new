@@ -89,6 +89,10 @@ dom-module(id="crouton-devices")
           this.devices = [];
 
           this.cardMenuSelection = '';
+          this.newDeviceName = '';
+          this.newPath = '';
+          this.newCardTitle = '';
+
           this.clearAllFalse();
 
           this.deviceCardPrefix = "crouton-device-";
@@ -108,9 +112,6 @@ dom-module(id="crouton-devices")
 
         },
         clearAllFalse: function() {
-          this.newDeviceName = '';
-          this.newPath = '';
-          this.newCardTitle = '';
           this.newUnits = '';
           this.newUnitsMin = '';
           this.newUnitsMax = '';
@@ -251,18 +252,29 @@ dom-module(id="crouton-devices")
         addDevice: function(name){
           var that = this;
 
-
-
           if(typeof(name) != "string") {
             name = this.newDeviceName;
           }
+          // make sure name is unique
           if(this.devices.indexOf(name) === -1){
-            this.push('devices', name);
-            this.cardMenuSelection = '';
-            this.clearAllFalse();
-            this.async(function(){
-            this.connectDevice(name);
-            }, 100);
+            
+            // if auto, push and clear as usual
+              this.push('devices', name);
+              
+              this.cardMenuSelection = '';
+              this.newDeviceName = '';
+              this.newPath = '';
+              this.newCardTitle = '';
+              this.clearAllFalse();
+              
+              this.async(function(){
+              this.connectDevice(name);
+              }, 100);
+
+            // otherwise
+              // push the name to devices
+              // build the JSON (in local storage)
+              // call device-card connect
           } else {
             this.fire('makeToast', { message: "Uh on! <b>" + name + "</b> already exists as a device", duration: 2000 });
           }

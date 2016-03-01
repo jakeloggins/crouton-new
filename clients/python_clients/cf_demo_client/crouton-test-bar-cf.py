@@ -206,12 +206,24 @@ if __name__ == '__main__':
 
     clientName = "crouton-demo"
 
+    # new path structure: location/function/*command type*/*device type*/*clientName*
+    # command types: confirm, control, errors, log
+    # dashboard subscribes to path/confirm
+    # dashboard publishes to path/control
+    # last will and testament is sent to path/errors
+    # log data, if needed, can be sent to path/log
+
+    # if any of the the scripts need to know where the data is coming from, they can use device type and the unique client name
+
     #device setup
     j = """
     {
         "deviceInfo": {
             "status": "good",
             "color": "#4D90FE",
+            "name": "crouton-demo",
+            "path": "/house/downstairs/office/test/",
+            "type": "pythonscript",
             "endPoints": {
                 "barDoor": {
                     "units": "people entered",
