@@ -35,13 +35,13 @@ dom-module(id="crouton-devices")
           paper-input.grid__col--3-of-12(label="Enter new device name", type="text", value="{{newDeviceName::input}}", on-keypress="keyCheck", required)
           paper-tabs(id="card_menu", selected="{{cardMenuSelection}}" attr-for-selected="id", on-click="validateCardType", noInk)
             paper-tab(id="auto") Auto Import
-            paper-tab(id="simple_text") Text
-            paper-tab(id="simple_input") Input
-            paper-tab(id="simple_slider") Slider
-            paper-tab(id="simple_button") Button
-            paper-tab(id="simple_toggle") Toggle
-            paper-tab(id="line_chart") Line Chart
-            paper-tab(id="rgb_slider") RGB Slider
+            paper-tab(id="crouton-simple-text") Text
+            paper-tab(id="crouton-simple-input") Input
+            paper-tab(id="crouton-simple-slider") Slider
+            paper-tab(id="crouton-simple-button") Button
+            paper-tab(id="crouton-simple-toggle") Toggle
+            paper-tab(id="crouton-line-chart") Line Chart
+            paper-tab(id="crouton-rgb-slider") RGB Slider
           paper-input.grid__col--3-of-12(label="Enter path", type="text", value="{{newPath::input}}", on-keypress="keyCheck", required)
         paper-toolbar
           paper-input.grid__col--3-of-12(label="Enter card title", type="text", value="{{newCardTitle::input}}", on-keypress="keyCheck", required)
@@ -87,6 +87,7 @@ dom-module(id="crouton-devices")
         ready: function() {
           var that = this;
           this.devices = [];
+          this.deviceObj = {};
 
           this.cardMenuSelection = '';
           this.newDeviceName = '';
@@ -138,7 +139,7 @@ dom-module(id="crouton-devices")
             case 'auto':
                 this.clearAllFalse();
                 break;
-            case 'simple_text':
+            case 'crouton-simple-text':
                 this.clearAllFalse();
 
                 this.newUnitsEnabled = true;
@@ -149,10 +150,10 @@ dom-module(id="crouton-devices")
                 this.MinOptional = '';
                 this.MaxOptional = '';
                 break;
-            case 'simple_input':
+            case 'crouton-simple-input':
                 this.clearAllFalse();
                 break;
-            case 'simple_slider':
+            case 'crouton-simple-slider':
                 this.clearAllFalse();
 
                 this.newUnitsEnabled = true;
@@ -166,7 +167,7 @@ dom-module(id="crouton-devices")
                 this.MinOptional = 'min value (default: 0)';
                 this.MaxOptional = 'max value (default: 100)';
                 break;
-            case 'simple_button':
+            case 'crouton-simple-button':
                 this.clearAllFalse();
 
                 this.newUnitsEnabled = true;
@@ -179,7 +180,7 @@ dom-module(id="crouton-devices")
                 this.MinOptional = '';
                 this.MaxOptional = '';
                 break;
-            case 'simple_toggle':
+            case 'crouton-simple-toggle':
                 this.clearAllFalse();
                 
                 this.newUnitsEnabled = false;
@@ -193,7 +194,7 @@ dom-module(id="crouton-devices")
                 this.MinOptional = 'default: "OFF"';
                 this.MaxOptional = 'default: "ON"';
                 break;
-            case 'line_chart':
+            case 'crouton-line-chart':
                 this.clearAllFalse();
 
                 this.newUnitsEnabled = false;
@@ -207,7 +208,7 @@ dom-module(id="crouton-devices")
                 this.MinOptional = 'min y-axis label (default: 0)';
                 this.MaxOptional = 'max y-axis label (default: 100)';
                 break;
-            case 'rgb_slider':
+            case 'crouton-rgb-slider':
                 this.clearAllFalse();
 
                 this.newUnitsEnabled = false;
@@ -260,6 +261,8 @@ dom-module(id="crouton-devices")
             
             // if auto, push and clear as usual
               this.push('devices', name);
+
+              console.log(this.buildJson());
               
               this.cardMenuSelection = '';
               this.newDeviceName = '';
@@ -294,6 +297,124 @@ dom-module(id="crouton-devices")
               document.getElementById(this.deviceCardPrefix + name).disconnectDevice();
             }
           }
+        },
+        buildJson: function() {
+          this.deviceObj = {
+            "deviceInfo": {
+              "status": "",
+              "color": "#4D90FE",
+              "endPoints": { },
+              "name": this.newCardTitle,
+              },
+          };
+
+          switch (this.cardMenuSelection) {
+            case 'crouton-simple-text':
+                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                  "units": this.newUnits,
+                  "values": {
+                    "value": 0
+                  },
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle,
+                  "path": this.newPath
+                };
+                break;
+
+            case 'crouton-simple-input':
+                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                  "values": {
+                    "value": "default message"
+                  },
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle,
+                  "path": this.newPath
+                };
+                break;
+
+            case 'crouton-simple-slider':
+                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                  "units": this.newUnits,
+                  "values": {
+                    "value": 0
+                  },
+                  "min": this.newUnitsMin,
+                  "max": this.newUnitsMax,
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle,
+                  "path": this.newPath
+                };
+                break;
+
+            case 'crouton-simple-button':
+                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                  "values": {
+                    "value": true
+                  },
+                  "icons": {
+                    "icon": this.newUnits
+                  },
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle,
+                  "path": this.newPath
+                };
+                break;
+            
+            case 'crouton-simple-toggle':
+                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                  "values": {
+                    "value": false
+                  },
+                  "labels": {
+                    "true": this.newUnitsMax,
+                    "false": this.newUnitsMin
+                  },
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle,
+                  "path": this.newPath
+                };
+                break;
+            
+            case 'crouton-line-chart':
+                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                  "values": {
+                      "labels": [1],
+                      "series": [[60]],
+                      "update": ""
+                  },
+                  "max": this.newUnitsMax,
+                  "low": this.newUnitsMin,
+                  "high": this.newUnitsMax,
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle,
+                  "path": this.newPath
+                };
+                break;
+            
+            case 'crouton-rgb-slider':
+                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                  "units": this.newUnits,
+                  "values": {
+                    "red": 0,
+                    "green": 0,
+                    "blue": 0
+                  },
+                  "min": this.newUnitsMin,
+                  "max": this.newUnitsMax,
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle,
+                  "path": this.newPath
+                };
+                break;
+
+            // if auto or no card selection, do not return json
+            default:
+              this.deviceObj = {};
+              return false
+          };
+
+          // otherwise, return json
+          return this.deviceObj
         },
         addDemo: function(){
           this.addDevice("crouton-demo");

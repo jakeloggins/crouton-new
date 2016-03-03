@@ -99,7 +99,6 @@ dom-module(id="crouton-device-card")
         connectDevice: function(){
           this.connectionStatus = "connecting";
           this.mqttCard.connectDevice(this.deviceName,this);
-          console.log(this);
           var index = this.savedDeviceIndex(this.deviceName);
           this.saveCheckbox = index || index === 0 ? true : false;
         },
