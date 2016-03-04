@@ -42,7 +42,7 @@ dom-module(id="crouton-devices")
             paper-tab(id="crouton-simple-toggle") Toggle
             paper-tab(id="crouton-line-chart") Line Chart
             paper-tab(id="crouton-rgb-slider") RGB Slider
-          paper-input.grid__col--3-of-12(label="Enter path", type="text", value="{{newPath::input}}", on-keypress="keyCheck", required)
+          paper-input.grid__col--2-of-12(label="Enter path", type="text", value="{{newPath::input}}", on-keypress="keyCheck", required)
         paper-toolbar
           paper-input.grid__col--3-of-12(label="Enter card title", type="text", value="{{newCardTitle::input}}", on-keypress="keyCheck", required)
           paper-input.grid__col--2-of-12(label="{{UnitsOptional}}", type="text", value="{{newUnits::input}}", on-keypress="keyCheck", disabled="{{!newUnitsEnabled}}", always-float-label)
@@ -135,6 +135,8 @@ dom-module(id="crouton-devices")
           }
         },
         validateCardType: function(e){
+          //- console.log("inside validateCardType..");
+          //- console.log(this.cardMenuSelection);
           switch (this.cardMenuSelection) {
             case 'auto':
                 this.clearAllFalse();
@@ -259,27 +261,22 @@ dom-module(id="crouton-devices")
           // make sure name is unique
           if(this.devices.indexOf(name) === -1){
             
-            // if auto, push and clear as usual
-              this.push('devices', name);
+            // now includes assembledJson to pass through to connect-mqtt function 
+            this.async(function(){
+            this.connectDevice(name,this.buildJson());
+            }, 100);
 
-              console.log(this.buildJson());
-              
-              this.cardMenuSelection = '';
-              this.newDeviceName = '';
-              this.newPath = '';
-              this.newCardTitle = '';
-              this.clearAllFalse();
-              
-              this.async(function(){
-              this.connectDevice(name);
-              }, 100);
+            // push name to devices
+            this.push('devices', name);
+            // form clearing moved to this.connectDevice so that buildJson retains cardMenuSelection
 
-            // otherwise
-              // push the name to devices
-              // build the JSON (in local storage)
-              // call device-card connect
           } else {
             this.fire('makeToast', { message: "Uh on! <b>" + name + "</b> already exists as a device", duration: 2000 });
+            this.cardMenuSelection = '';
+            this.newDeviceName = '';
+            this.newPath = '';
+            this.newCardTitle = '';
+            this.clearAllFalse();
           }
         },
         removeDevice: function(name){
@@ -288,8 +285,19 @@ dom-module(id="crouton-devices")
               this.splice('devices', index, 1);
           }
         },
-        connectDevice: function(name,autoAdd){
-          document.getElementById(this.deviceCardPrefix + name).connectDevice();
+        connectDevice: function(name,assembledJson){
+          //- console.log("devices connectDevice ..");
+          //- console.log(assembledJson);
+          //- console.log(JSON.stringify(assembledJson));
+          document.getElementById(this.deviceCardPrefix + name).connectDevice(assembledJson);
+
+          // clear form
+          this.cardMenuSelection = '';
+          this.newDeviceName = '';
+          this.newPath = '';
+          this.newCardTitle = '';
+          this.clearAllFalse();
+
         },
         disconnectAllDevices: function(){
           for(var device in this.devices){
@@ -307,7 +315,8 @@ dom-module(id="crouton-devices")
               "name": this.newCardTitle,
               },
           };
-
+          //- console.log("inside buildJson...");
+          //- console.log(this.cardMenuSelection);
           switch (this.cardMenuSelection) {
             case 'crouton-simple-text':
                 this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
@@ -393,7 +402,6 @@ dom-module(id="crouton-devices")
             
             case 'crouton-rgb-slider':
                 this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
-                  "units": this.newUnits,
                   "values": {
                     "red": 0,
                     "green": 0,
