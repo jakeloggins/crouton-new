@@ -176,7 +176,7 @@ dom-module(id="crouton-connect-mqtt")
             messageString = message.toString();
 
             //Waiting for device info to check if device is online
-            if(box === "outbox" && address === "deviceInfo"){
+            if((box === "outbox" && address === "deviceInfo") || (box === "deviceInfo" && address === "confirm")){
               if(that.checkAutoConnect[name] || that.checkStatusAsync[name]){
                 if(that.checkStatusAsync[name]){
                   that.cancelAsync(that.checkStatusAsync[name]);//cancel timeout
@@ -186,6 +186,7 @@ dom-module(id="crouton-connect-mqtt")
                   delete that.checkAutoConnect[name];
                 }
                 that.unsubscribeAddress("/outbox/"+name+"/deviceInfo");
+                that.unsubscribeAddress("/deviceInfo/"+name+"/confirm")
                 messageObj = JSON.parse(messageString);
                 var deviceCard = document.getElementById(that.deviceCardPrefix + name);
                 deviceCard.connectionStatus = "connected";//chance connection status
@@ -246,23 +247,25 @@ dom-module(id="crouton-connect-mqtt")
         connectDevice: function(name,object,assembledJson){
 
           this.subscribeAddress("/outbox/"+name+"/deviceInfo");
+          // new path routing
+          this.subscribeAddress("/deviceInfo/"+name+"/confirm");
 
-          // if assembledJson is false or undefined, do the usual
           if (assembledJson == false || assembledJson === undefined) {
+            // if assembledJson is false or undefined, get JSON from device
             this.client.publish("/inbox/"+name+"/deviceInfo", "get");
           } else {
-            // otherwise, send message to /deviceInfo/name
-            //- console.log("connect-mqtt connectDevice...")
-            //- console.log(assembledJson);
-            //- console.log(JSON.stringify(assembledJson));
-            this.client.publish("/deviceInfo/"+name, JSON.stringify(assembledJson));
+            // otherwise, send JSON to /deviceInfo/name/control
+            console.log("connect-mqtt connectDevice...")
+            console.log(assembledJson);
+            console.log(JSON.stringify(assembledJson));
+            this.client.publish("/deviceInfo/"+name+"/control", JSON.stringify(assembledJson));
           }
           this.checkStatusAsync[name] = this.async(function(){
             object.connectionStatus = "not connected";
             this.fire('makeToast', { message: "Device <b>" + name + "</b> failed to connect", duration: 3000, status: "exclamation-circle" });
           }, 5000);
 
-              //  -- wait for return message within connectBroker
+            //  -- wait for return message within connectBroker
         },
         storageAvailable: function(type) {
         	try {

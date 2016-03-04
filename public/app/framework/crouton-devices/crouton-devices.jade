@@ -286,9 +286,9 @@ dom-module(id="crouton-devices")
           }
         },
         connectDevice: function(name,assembledJson){
-          //- console.log("devices connectDevice ..");
-          //- console.log(assembledJson);
-          //- console.log(JSON.stringify(assembledJson));
+          console.log("devices connectDevice ..");
+          console.log(assembledJson);
+          console.log(JSON.stringify(assembledJson));
           document.getElementById(this.deviceCardPrefix + name).connectDevice(assembledJson);
 
           // clear form
@@ -312,14 +312,14 @@ dom-module(id="crouton-devices")
               "status": "",
               "color": "#4D90FE",
               "endPoints": { },
-              "name": this.newCardTitle,
+              "name": this.newDeviceName,
               },
           };
           //- console.log("inside buildJson...");
           //- console.log(this.cardMenuSelection);
           switch (this.cardMenuSelection) {
             case 'crouton-simple-text':
-                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
                   "units": this.newUnits,
                   "values": {
                     "value": 0
@@ -331,7 +331,7 @@ dom-module(id="crouton-devices")
                 break;
 
             case 'crouton-simple-input':
-                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
                   "values": {
                     "value": "default message"
                   },
@@ -342,13 +342,13 @@ dom-module(id="crouton-devices")
                 break;
 
             case 'crouton-simple-slider':
-                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
                   "units": this.newUnits,
                   "values": {
                     "value": 0
                   },
-                  "min": this.newUnitsMin,
-                  "max": this.newUnitsMax,
+                  "min": parseInt(this.newUnitsMin),
+                  "max": parseInt(this.newUnitsMax),
                   "card-type": this.cardMenuSelection,
                   "title": this.newCardTitle,
                   "path": this.newPath
@@ -356,7 +356,7 @@ dom-module(id="crouton-devices")
                 break;
 
             case 'crouton-simple-button':
-                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
                   "values": {
                     "value": true
                   },
@@ -370,7 +370,7 @@ dom-module(id="crouton-devices")
                 break;
             
             case 'crouton-simple-toggle':
-                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
                   "values": {
                     "value": false
                   },
@@ -385,15 +385,15 @@ dom-module(id="crouton-devices")
                 break;
             
             case 'crouton-line-chart':
-                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
                   "values": {
                       "labels": [1],
                       "series": [[60]],
                       "update": ""
                   },
-                  "max": this.newUnitsMax,
-                  "low": this.newUnitsMin,
-                  "high": this.newUnitsMax,
+                  "max": parseInt(this.newUnitsMax),
+                  "low": parseInt(this.newUnitsMin),
+                  "high": parseInt(this.newUnitsMax),
                   "card-type": this.cardMenuSelection,
                   "title": this.newCardTitle,
                   "path": this.newPath
@@ -401,14 +401,14 @@ dom-module(id="crouton-devices")
                 break;
             
             case 'crouton-rgb-slider':
-                this.deviceObj.deviceInfo.endPoints[this.cardMenuSelection] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
                   "values": {
                     "red": 0,
                     "green": 0,
                     "blue": 0
                   },
-                  "min": this.newUnitsMin,
-                  "max": this.newUnitsMax,
+                  "min": parseInt(this.newUnitsMin),
+                  "max": parseInt(this.newUnitsMax),
                   "card-type": this.cardMenuSelection,
                   "title": this.newCardTitle,
                   "path": this.newPath
