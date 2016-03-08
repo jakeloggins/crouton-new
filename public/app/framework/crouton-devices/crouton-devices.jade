@@ -32,7 +32,7 @@ dom-module(id="crouton-devices")
         crouton-device-card(id="{{deviceId(item)}}", device-name="{{item}}")
       div
         paper-toolbar
-          paper-input.grid__col--3-of-12(label="Enter new device name", type="text", value="{{newDeviceName::input}}", on-keypress="keyCheck", required)
+          paper-input.grid__col--3-of-12(label="Enter new device name", type="text", value="{{newDeviceName::input}}", required)
           paper-tabs(id="card_menu", selected="{{cardMenuSelection}}" attr-for-selected="id", on-click="validateCardType", noInk)
             paper-tab(id="auto") Auto Import
             paper-tab(id="crouton-simple-text") Text
@@ -42,12 +42,12 @@ dom-module(id="crouton-devices")
             paper-tab(id="crouton-simple-toggle") Toggle
             paper-tab(id="crouton-line-chart") Line Chart
             paper-tab(id="crouton-rgb-slider") RGB Slider
-          paper-input.grid__col--2-of-12(label="Enter path", type="text", value="{{newPath::input}}", on-keypress="keyCheck", required)
+          paper-input.grid__col--2-of-12(label="Enter path", type="text", value="{{newPath::input}}", required)
         paper-toolbar
-          paper-input.grid__col--3-of-12(label="Enter card title", type="text", value="{{newCardTitle::input}}", on-keypress="keyCheck", required)
-          paper-input.grid__col--2-of-12(label="{{UnitsOptional}}", type="text", value="{{newUnits::input}}", on-keypress="keyCheck", disabled="{{!newUnitsEnabled}}", always-float-label)
-          paper-input.grid__col--2-of-12(label="{{MinOptional}}", type="text", value="{{newUnitsMin::input}}", on-keypress="keyCheck", disabled="{{!newUnitsMinEnabled}}", always-float-label)
-          paper-input.grid__col--2-of-12(label="{{MaxOptional}}", type="text", value="{{newUnitsMax::input}}", on-keypress="keyCheck", disabled="{{!newUnitsMaxEnabled}}", always-float-label)  
+          paper-input.grid__col--3-of-12(label="Enter card title", type="text", value="{{newCardTitle::input}}", required)
+          paper-input.grid__col--2-of-12(label="{{UnitsOptional}}", type="text", value="{{newUnits::input}}", disabled="{{!newUnitsEnabled}}", always-float-label)
+          paper-input.grid__col--2-of-12(label="{{MinOptional}}", type="text", value="{{newUnitsMin::input}}", disabled="{{!newUnitsMinEnabled}}", always-float-label)
+          paper-input.grid__col--2-of-12(label="{{MaxOptional}}", type="text", value="{{newUnitsMax::input}}", disabled="{{!newUnitsMaxEnabled}}", always-float-label)  
           div.addButtons.grid__col--3-of-12
             paper-button(type="submit", disabled$="{{validateNewDeviceInput(newDeviceName,newPath,newCardTitle,cardMenuSelection)}}", on-click="addDevice", raised).rightBtn Add Device
         
@@ -245,12 +245,6 @@ dom-module(id="crouton-devices")
         deviceValuePointer: function(name){
           this.values[name] = {};
           return this.values[name];
-        },
-        keyCheck: function(event){
-          if(event.keyCode == 13){
-            event.preventDefault();
-            this.addDevice();
-          }
         },
         addDevice: function(name){
           var that = this;
