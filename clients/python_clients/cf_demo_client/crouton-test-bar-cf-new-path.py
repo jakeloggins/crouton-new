@@ -54,6 +54,11 @@ def on_connect(client, userdata, flags, rc):
 
 #callback when we receive a published message from the server
 def on_message(client, userdata, msg):
+    global device
+    global json
+    global j
+    global clientName
+    global deviceJson
     # print(msg.topic + ": " + str(msg.payload))
 
     # new parsing method
@@ -66,23 +71,48 @@ def on_message(client, userdata, msg):
     before_command = filter(None, parse_command[0].split("/"))
     # after command is not needed for deviceInfo, handled in global and normal instead
 
+    print "have message"
+
     ### Global Commands
     if (before_command[0] == "global") & (command == "control"):
+        print "have global"
         after_command = filter(None, parse_command[1].split("/"))
-        # loop through remaining items of before_command
-            # compare each item to corresponding item of client's path, found in j
-                # if any are false, ignore the command
-                # else, grab the function (the first element after command - after_command[0])
-                    # loop through every endpoint in j with matching function key
-                        # update the values with the msg payload
+        
+        # verify global command scope is within device path scope
+        device_path_split = filter(None, str(device["deviceInfo"]["path"]).split("/"))
+        device_path_split[:0] = ["global"]
+
+        if len(before_command) <= len(device_path_split):
+            print "scope length ok"
+            for d, g in zip(device_path_split,before_command):
+                if d == g:
+                    scope_match = True
+                else:
+                    scope_match = False
+                    break
+
+            if scope_match == True:
+                print "scope match positive"
+                # look for function matches              
+                for key in device["deviceInfo"]["endPoints"]:
+                    try:
+                        function_match = after_command[0] == device["deviceInfo"]["endPoints"][key]["function"]
+                    except KeyError:
+                        function_match = False
+
+                    # update value of function matches
+                    if function_match == True:
+                        client.publish(device["deviceInfo"]["path"]+"/confirm/"+clientName+"/"+key, str(msg.payload))
+                        
+                        newJson = json.loads(msg.payload)
+                        for item, value in newJson.iteritems():
+                            updateValue(key,item,value)
+
+
+
     
     ### Device Setup Commands
     elif (before_command[0] == "deviceInfo") & (command == "control"):
-        global device
-        global json
-        global j
-        global clientName
-        global deviceJson
         # answer a get request by sending the device JSON
         if str(msg.payload) == "get":
             newJson = json.dumps(device)
@@ -161,16 +191,11 @@ def startup():
     global clientName
     global deviceJson
 
-
     client.will_set(device["deviceInfo"]["path"]+'/errors/'+clientName, 'failed', 0, False)
 
-    # old method
-    #client.subscribe("/inbox/"+clientName+"/deviceInfo")
-    #client.publish("/outbox/"+clientName+"/deviceInfo", deviceJson) #for autoreconnect
-
-    # new method
     client.subscribe("/deviceInfo/"+clientName+"/control")
     client.publish("/deviceInfo/"+clientName+"/confirm", deviceJson) #for autoreconnect
+    client.subscribe("/global/#") # to receive global commands
 
     if j != "{ }":
         for key in device["deviceInfo"]["endPoints"]:
@@ -310,7 +335,8 @@ if __name__ == '__main__':
                         "false": "OFF"
                     },
                     "card-type": "crouton-simple-toggle",
-                    "title": "Dance Floor Lights"
+                    "title": "Dance Floor Lights",
+                    "function": "toggle"
                 },
                 "backDoorLock": {
                     "values": {
@@ -325,7 +351,8 @@ if __name__ == '__main__':
                         "false": "lock"
                     },
                     "card-type": "crouton-simple-toggle",
-                    "title": "Employee Door"
+                    "title": "Employee Door",
+                    "function": "toggle"
                 },
                 "lastCall": {
                     "values": {
