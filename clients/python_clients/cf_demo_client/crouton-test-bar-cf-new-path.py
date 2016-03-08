@@ -71,11 +71,8 @@ def on_message(client, userdata, msg):
     before_command = filter(None, parse_command[0].split("/"))
     # after command is not needed for deviceInfo, handled in global and normal instead
 
-    print "have message"
-
     ### Global Commands
     if (before_command[0] == "global") & (command == "control"):
-        print "have global"
         after_command = filter(None, parse_command[1].split("/"))
         
         # verify global command scope is within device path scope
@@ -83,7 +80,6 @@ def on_message(client, userdata, msg):
         device_path_split[:0] = ["global"]
 
         if len(before_command) <= len(device_path_split):
-            print "scope length ok"
             for d, g in zip(device_path_split,before_command):
                 if d == g:
                     scope_match = True
@@ -92,7 +88,6 @@ def on_message(client, userdata, msg):
                     break
 
             if scope_match == True:
-                print "scope match positive"
                 # look for function matches              
                 for key in device["deviceInfo"]["endPoints"]:
                     try:

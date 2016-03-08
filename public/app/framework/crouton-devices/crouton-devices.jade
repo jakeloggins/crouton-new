@@ -228,15 +228,15 @@ dom-module(id="crouton-devices")
         },
         validateNewDeviceInput: function(newDeviceName,newPath,newCardTitle,cardMenuSelection){
           //making sure there is a name not just white spaces... also need to filter special characteres later too .. true means add device button is disabled
-          if((newDeviceName && newPath && newCardTitle && cardMenuSelection === null) || (newCardTitle.match(/^ *$/) || newDeviceName.match(/^ *$/) || newPath.match(/^ *$/) || cardMenuSelection.match(/^ *$/) !== null)){
+          if((newDeviceName && newPath && newCardTitle && cardMenuSelection === null) || (newCardTitle.match(/^ *$/) || newDeviceName.match(/^ *$/) || newPath.match(/^ *$|confirm|control|log|errors/) || cardMenuSelection.match(/^ *$/) !== null)){
               //unless it is set to auto, in which case only device name needs to be filled in
               if (cardMenuSelection == 'auto' && !(newDeviceName === null || newDeviceName.match(/^ *$/) !== null)) {
-                return false
+                return false // enable
               } else {
-                  return true
+                  return true // stay disabled
               }
           } else {
-              return false
+              return false // enable 
           }
         },
         deviceId: function(name){
@@ -308,13 +308,23 @@ dom-module(id="crouton-devices")
         },
         buildJson: function() {
           // -- color appears to do nothing, should show up in cardBorder from crouton-card.css
+          
+          // make sure newPath has beginning slash and no end slash
+          if(this.newPath.charAt(0) != "/" && this.newPath != "") {
+            slash = "/";
+            this.newPath = slash.concat(this.newPath);
+          }
+          if(this.newPath.slice(-1) == "/") {
+            this.newPath = this.newPath.slice(0, -1);
+          }
+
           this.deviceObj = {
             "deviceInfo": {
               "status": "",
               "color": "#0000FF",
               "endPoints": { },
               "name": this.newDeviceName,
-              "path": this.newPath,
+              "path": this.newPath
               },
           };
           //- console.log("inside buildJson...");
@@ -327,7 +337,7 @@ dom-module(id="crouton-devices")
                     "value": 0
                   },
                   "card-type": this.cardMenuSelection,
-                  "title": this.newCardTitle,
+                  "title": this.newCardTitle
                 };
                 break;
 
@@ -337,7 +347,7 @@ dom-module(id="crouton-devices")
                     "value": "default message"
                   },
                   "card-type": this.cardMenuSelection,
-                  "title": this.newCardTitle,
+                  "title": this.newCardTitle
                 };
                 break;
 
@@ -350,7 +360,7 @@ dom-module(id="crouton-devices")
                   "min": parseInt(this.newUnitsMin),
                   "max": parseInt(this.newUnitsMax),
                   "card-type": this.cardMenuSelection,
-                  "title": this.newCardTitle,
+                  "title": this.newCardTitle
                 };
                 break;
 
@@ -363,7 +373,7 @@ dom-module(id="crouton-devices")
                     "icon": this.newUnits
                   },
                   "card-type": this.cardMenuSelection,
-                  "title": this.newCardTitle,
+                  "title": this.newCardTitle
                 };
                 break;
             
@@ -377,7 +387,7 @@ dom-module(id="crouton-devices")
                     "false": this.newUnitsMin
                   },
                   "card-type": this.cardMenuSelection,
-                  "title": this.newCardTitle,
+                  "title": this.newCardTitle
                 };
                 break;
             
@@ -392,7 +402,7 @@ dom-module(id="crouton-devices")
                   "low": parseInt(this.newUnitsMin),
                   "high": parseInt(this.newUnitsMax),
                   "card-type": this.cardMenuSelection,
-                  "title": this.newCardTitle,
+                  "title": this.newCardTitle
                 };
                 break;
             
@@ -406,7 +416,7 @@ dom-module(id="crouton-devices")
                   "min": parseInt(this.newUnitsMin),
                   "max": parseInt(this.newUnitsMax),
                   "card-type": this.cardMenuSelection,
-                  "title": this.newCardTitle,
+                  "title": this.newCardTitle
                 };
                 break;
 
