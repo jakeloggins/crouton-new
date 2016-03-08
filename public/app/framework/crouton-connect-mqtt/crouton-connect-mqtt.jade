@@ -262,7 +262,7 @@ dom-module(id="crouton-connect-mqtt")
           if(typeof message != "string"){
             message = JSON.stringify(message);
           }
-          this.client.publish(topic, message);
+          this.client.publish(topic, message, 2);
         },
         noConnection: function(){
           if(this.connecting == true){
@@ -284,13 +284,13 @@ dom-module(id="crouton-connect-mqtt")
 
           if (assembledJson == false || assembledJson === undefined) {
             // if assembledJson is false or undefined, get JSON from device
-            this.client.publish("/deviceInfo/"+name+"/control", "get");
+            this.client.publish("/deviceInfo/"+name+"/control", "get", 2);
           } else {
             // otherwise, send JSON to /deviceInfo/name/control
             console.log("connect-mqtt connectDevice...")
             console.log(assembledJson);
             console.log(JSON.stringify(assembledJson));
-            this.client.publish("/deviceInfo/"+name+"/control", JSON.stringify(assembledJson));
+            this.client.publish("/deviceInfo/"+name+"/control", JSON.stringify(assembledJson), 2);
           }
           this.checkStatusAsync[name] = this.async(function(){
             object.connectionStatus = "not connected";
