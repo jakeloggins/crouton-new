@@ -169,14 +169,47 @@ dom-module(id="crouton-connect-mqtt")
           });
           //on message
           this.client.on('message', function (topic, message) {
-            topicSplit = topic.toString().split("/");
-            box = topicSplit[1];
-            name = topicSplit[2];
-            address = topicSplit[3];
+            has_device_info = false;
+            // new method
+            command = topic.toString().match(/confirm|control|log|errors/);
+            parse_command = topic.toString().split(/confirm|control|log|errors/);
+            before_command = parse_command[0].toString().split("/").filter(Boolean);
+            after_command = parse_command[1].toString().split("/").filter(Boolean);
+
+
+            if (before_command[0] != "global") {
+                if (before_command[0] == "deviceInfo") {
+                  has_device_info = true;
+                  name = before_command[1];
+                } else {
+                    name = after_command[0];
+                    address = after_command[1];
+                }
+            }
+
             messageString = message.toString();
+            //- console.log(topic);
+            //- console.log(messageString);
+            //- console.log("command..");
+            //- console.log(command);
+            //- console.log("parse command..");
+            //- console.log(parse_command);
+            //- console.log("before command..");
+            //- console.log(before_command);
+            //- console.log("after command..");
+            //- console.log(after_command);
+            //- console.log(has_device_info);
+
+            // old method
+            //- topicSplit = topic.toString().split("/");
+            //- box = topicSplit[1];
+            //- name = topicSplit[2];
+            //- address = topicSplit[3];
+            //- messageString = message.toString();
 
             //Waiting for device info to check if device is online
-            if((box === "outbox" && address === "deviceInfo") || (box === "deviceInfo" && address === "confirm")){
+            if(command == "confirm" && has_device_info == true){
+              console.log("confirm and has device info");
               if(that.checkAutoConnect[name] || that.checkStatusAsync[name]){
                 if(that.checkStatusAsync[name]){
                   that.cancelAsync(that.checkStatusAsync[name]);//cancel timeout
@@ -185,7 +218,7 @@ dom-module(id="crouton-connect-mqtt")
                 if(that.checkAutoConnect[name]){
                   delete that.checkAutoConnect[name];
                 }
-                that.unsubscribeAddress("/outbox/"+name+"/deviceInfo");
+                //that.unsubscribeAddress("/outbox/"+name+"/deviceInfo");
                 that.unsubscribeAddress("/deviceInfo/"+name+"/confirm")
                 messageObj = JSON.parse(messageString);
                 var deviceCard = document.getElementById(that.deviceCardPrefix + name);
@@ -202,14 +235,14 @@ dom-module(id="crouton-connect-mqtt")
             }
 
             //lwt - device has disconnected
-            if(box === "outbox" && address === "lwt"){
+            if(command == "errors"){
               var deviceCard = document.getElementById(that.deviceCardPrefix + name);
               deviceCard.forcedDisconnect(messageString);
               return;
             }
 
             //If we are getting a message
-            if(box === "outbox"){
+            if(command == "confirm"){
               try{
                 var messageObj = JSON.parse(messageString);
                 that.croutonDashboard.updateValue(name,address,messageObj);
@@ -246,13 +279,12 @@ dom-module(id="crouton-connect-mqtt")
         },
         connectDevice: function(name,object,assembledJson){
 
-          this.subscribeAddress("/outbox/"+name+"/deviceInfo");
           // new path routing
           this.subscribeAddress("/deviceInfo/"+name+"/confirm");
 
           if (assembledJson == false || assembledJson === undefined) {
             // if assembledJson is false or undefined, get JSON from device
-            this.client.publish("/inbox/"+name+"/deviceInfo", "get");
+            this.client.publish("/deviceInfo/"+name+"/control", "get");
           } else {
             // otherwise, send JSON to /deviceInfo/name/control
             console.log("connect-mqtt connectDevice...")

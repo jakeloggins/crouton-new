@@ -40,6 +40,9 @@ dom-module(id="crouton-simple-input")
           deviceName :{
             type: String
           },
+          devicePath:{
+            type: String
+          },
           endPointName :{
             type: String
           }
@@ -69,7 +72,8 @@ dom-module(id="crouton-simple-input")
         sendMessage: function(){
           var newValue = {};
           newValue.value = this.newMessage;
-          this.mqtt.publishMessage("/inbox/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
+          this.mqtt.publishMessage(this.devicePath+"/control/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
+          //this.mqtt.publishMessage("/inbox/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
           this.showInputBox = false;
           this.newMessage = "";
         }

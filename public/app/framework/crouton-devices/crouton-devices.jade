@@ -286,9 +286,9 @@ dom-module(id="crouton-devices")
           }
         },
         connectDevice: function(name,assembledJson){
-          console.log("devices connectDevice ..");
-          console.log(assembledJson);
-          console.log(JSON.stringify(assembledJson));
+          //- console.log("devices connectDevice ..");
+          //- console.log(assembledJson);
+          //- console.log(JSON.stringify(assembledJson));
           document.getElementById(this.deviceCardPrefix + name).connectDevice(assembledJson);
 
           // clear form
@@ -307,12 +307,14 @@ dom-module(id="crouton-devices")
           }
         },
         buildJson: function() {
+          // -- color appears to do nothing, should show up in cardBorder from crouton-card.css
           this.deviceObj = {
             "deviceInfo": {
               "status": "",
-              "color": "#4D90FE",
+              "color": "#0000FF",
               "endPoints": { },
               "name": this.newDeviceName,
+              "path": this.newPath,
               },
           };
           //- console.log("inside buildJson...");
@@ -326,7 +328,6 @@ dom-module(id="crouton-devices")
                   },
                   "card-type": this.cardMenuSelection,
                   "title": this.newCardTitle,
-                  "path": this.newPath
                 };
                 break;
 
@@ -337,7 +338,6 @@ dom-module(id="crouton-devices")
                   },
                   "card-type": this.cardMenuSelection,
                   "title": this.newCardTitle,
-                  "path": this.newPath
                 };
                 break;
 
@@ -351,7 +351,6 @@ dom-module(id="crouton-devices")
                   "max": parseInt(this.newUnitsMax),
                   "card-type": this.cardMenuSelection,
                   "title": this.newCardTitle,
-                  "path": this.newPath
                 };
                 break;
 
@@ -365,7 +364,6 @@ dom-module(id="crouton-devices")
                   },
                   "card-type": this.cardMenuSelection,
                   "title": this.newCardTitle,
-                  "path": this.newPath
                 };
                 break;
             
@@ -380,7 +378,6 @@ dom-module(id="crouton-devices")
                   },
                   "card-type": this.cardMenuSelection,
                   "title": this.newCardTitle,
-                  "path": this.newPath
                 };
                 break;
             
@@ -396,7 +393,6 @@ dom-module(id="crouton-devices")
                   "high": parseInt(this.newUnitsMax),
                   "card-type": this.cardMenuSelection,
                   "title": this.newCardTitle,
-                  "path": this.newPath
                 };
                 break;
             
@@ -411,7 +407,6 @@ dom-module(id="crouton-devices")
                   "max": parseInt(this.newUnitsMax),
                   "card-type": this.cardMenuSelection,
                   "title": this.newCardTitle,
-                  "path": this.newPath
                 };
                 break;
 
