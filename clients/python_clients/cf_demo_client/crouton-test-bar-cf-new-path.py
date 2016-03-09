@@ -59,6 +59,7 @@ def on_message(client, userdata, msg):
     global j
     global clientName
     global deviceJson
+    global device_path
     # print(msg.topic + ": " + str(msg.payload))
 
     # new parsing method
@@ -76,7 +77,7 @@ def on_message(client, userdata, msg):
         after_command = filter(None, parse_command[1].split("/"))
         
         # verify global command scope is within device path scope
-        device_path_split = filter(None, str(device["deviceInfo"]["path"]).split("/"))
+        device_path_split = filter(None, device_path.split("/"))
         device_path_split[:0] = ["global"]
 
         if len(before_command) <= len(device_path_split):
@@ -97,7 +98,7 @@ def on_message(client, userdata, msg):
 
                     # update value of function matches
                     if function_match == True:
-                        client.publish(device["deviceInfo"]["path"]+"/confirm/"+clientName+"/"+key, str(msg.payload))
+                        client.publish(device_path+"/confirm/"+clientName+"/"+key, str(msg.payload))
                         
                         newJson = json.loads(msg.payload)
                         for item, value in newJson.iteritems():
@@ -127,7 +128,7 @@ def on_message(client, userdata, msg):
                 #print key
                 
                 #client.subscribe("/inbox/"+clientName+"/"+str(key))
-                client.subscribe(device["deviceInfo"]["path"]+"/control/"+clientName+"/"+str(key))
+                client.subscribe(device_path+"/control/"+clientName+"/"+str(key))
             
             client.publish("/deviceInfo/"+clientName+"/confirm", deviceJson)
 
@@ -140,7 +141,7 @@ def on_message(client, userdata, msg):
         #turn on light here and if success, do the following..
 
         #client.publish("/outbox/"+clientName+"/"+address, str(msg.payload))
-        client.publish(device["deviceInfo"]["path"]+"/confirm/"+name+"/"+address, str(msg.payload))
+        client.publish(device_path+"/confirm/"+name+"/"+address, str(msg.payload))
 
         newJson = json.loads(msg.payload)
         for key, value in newJson.iteritems():
@@ -185,8 +186,9 @@ def startup():
     global device
     global clientName
     global deviceJson
+    global device_path
 
-    client.will_set(device["deviceInfo"]["path"]+'/errors/'+clientName, 'failed', 0, False)
+    client.will_set(device_path+'/errors/'+clientName, 'failed', 0, False)
 
     client.subscribe("/deviceInfo/"+clientName+"/control")
     client.publish("/deviceInfo/"+clientName+"/confirm", deviceJson) #for autoreconnect
@@ -213,6 +215,7 @@ def update_values():
     global client
     global connectionStatus
     global device
+    global device_path
 
     global counter
     global barDoor
@@ -228,7 +231,8 @@ def update_values():
     #barDoor
     if(counter >= barDoorDelay):
         barDoor = barDoor + 1 #increment value by one
-        client.publish(device["deviceInfo"]["path"]+"/confirm/"+clientName+"/barDoor", '{"value":'+str(barDoor)+'}')
+        #client.publish(device["deviceInfo"]["path"]+"/confirm/"+clientName+"/barDoor", '{"value":'+str(barDoor)+'}')
+        client.publish(device_path+"/confirm/"+clientName+"/barDoor", '{"value":'+str(barDoor)+'}')
         barDoorDelay = counter + 5 #wait 5 seconds for next increment
         updateValue("barDoor","value",barDoor)
         # print "barDoor is now: " + str(barDoor)
@@ -236,7 +240,7 @@ def update_values():
     #drinks
     if(counter >= drinksDelay):
         drinks = drinks + 1 #increment value by one
-        client.publish(device["deviceInfo"]["path"]+"/confirm/"+clientName+"/drinks", '{"value":'+str(drinks)+'}')
+        client.publish(device_path+"/confirm/"+clientName+"/drinks", '{"value":'+str(drinks)+'}')
         drinksDelay = counter + int(random.random()*5) #wait 5 seconds for next increment
         updateValue("drinks","value",drinks)
         # print "drinks is now: " + str(drinks)
@@ -245,7 +249,7 @@ def update_values():
     if(counter >= tempDelay):
         if(temp == 15):
             temp = 0
-        client.publish(device["deviceInfo"]["path"]+"/confirm/"+clientName+"/temperature", '{"update": {"labels":['+str(counter)+'],"series":[['+str(tempArray[temp])+']]}}')
+        client.publish(device_path+"/confirm/"+clientName+"/temperature", '{"update": {"labels":['+str(counter)+'],"series":[['+str(tempArray[temp])+']]}}')
         tempDelay = counter + 1 #wait 5 seconds for next increment
         temp = temp + 1
 
@@ -255,7 +259,7 @@ def update_values():
             occup = 78
         else:
             occup = 76
-        client.publish(device["deviceInfo"]["path"]+"/confirm/"+clientName+"/occupancy", '{"series":['+str(occup)+']}')
+        client.publish(device_path+"/confirm/"+clientName+"/occupancy", '{"series":['+str(occup)+']}')
         occupDelay = counter + int(random.random()*5) #wait 5 seconds for next increment
         updateValue("occupancy","series",occup)
         # print "drinks is now: " + str(drinks)
@@ -286,16 +290,19 @@ if __name__ == '__main__':
 
     clientName = "crouton-demo-new"
 
-    # new path structure: location/function/*command type*/*device type*/*clientName*
+    # new path structure: /*path*/ *command type*/*clientName*/*endPoint key* 
     # command types: confirm, control, errors, log
-    # dashboard subscribes to path/confirm
-    # dashboard publishes to path/control
-    # last will and testament is sent to path/errors
-    # log data, if needed, can be sent to path/log
+    # dashboard subscribes to *path*/confirm
+    # dashboard publishes to *path*/control
+    # last will and testament is sent to *path*/errors
+    # log data, if needed, can be sent to *path*/log
 
-    # if any of the the scripts need to know where the data is coming from, they can use device type and the unique client name
+    # global commands can be sent to / global / *path* or *path fragment* / *command type* / *function*
+    # ex: /global/house/upstairs/control/lights {"value": false}
+    # will turn off all device endpoints located at path /house/upstairs/# with a "function": "lights" within their endpoint
 
     #device setup
+    #j = "{ }"
     j = """
     {
         "deviceInfo": {
@@ -441,7 +448,6 @@ if __name__ == '__main__':
     #device["deviceInfo"]["name"] = clientName
     deviceJson = json.dumps(device)
 
-    device_path = str(device["deviceInfo"]["path"])
 
     print "Client Name is: " + clientName
 
@@ -450,8 +456,12 @@ if __name__ == '__main__':
     client.on_message = on_message
     client.on_disconnect = on_disconnect
     client.username_pw_set("","")
-    client.will_set(device["deviceInfo"]["path"]+'/errors/'+clientName, 'failed', 0, False)
 
+    if j != "{ }":
+        device_path = str(device["deviceInfo"]["path"])
+        client.will_set(device_path+'/errors/'+clientName, 'failed', 0, False)
+    else:
+        device_path = "/default"
 
     client.connect("localhost", 1883, 60)
     #client.connect("test.mosquitto.org", 1883, 60)

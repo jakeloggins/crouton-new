@@ -93,6 +93,7 @@ dom-module(id="crouton-devices")
           this.newDeviceName = '';
           this.newPath = '';
           this.newCardTitle = '';
+          this.newCardKey = '';
 
           this.clearAllFalse();
 
@@ -312,6 +313,9 @@ dom-module(id="crouton-devices")
             this.newPath = this.newPath.slice(0, -1);
           }
 
+          // remove white space from so it can be a key
+          this.newCardKey = this.newCardTitle.replace(/ /g,"");
+
           this.deviceObj = {
             "deviceInfo": {
               "status": "",
@@ -325,7 +329,7 @@ dom-module(id="crouton-devices")
           //- console.log(this.cardMenuSelection);
           switch (this.cardMenuSelection) {
             case 'crouton-simple-text':
-                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
                   "units": this.newUnits,
                   "values": {
                     "value": 0
@@ -336,7 +340,7 @@ dom-module(id="crouton-devices")
                 break;
 
             case 'crouton-simple-input':
-                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
                   "values": {
                     "value": "default message"
                   },
@@ -346,7 +350,7 @@ dom-module(id="crouton-devices")
                 break;
 
             case 'crouton-simple-slider':
-                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
                   "units": this.newUnits,
                   "values": {
                     "value": 0
@@ -359,7 +363,7 @@ dom-module(id="crouton-devices")
                 break;
 
             case 'crouton-simple-button':
-                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
                   "values": {
                     "value": true
                   },
@@ -372,7 +376,7 @@ dom-module(id="crouton-devices")
                 break;
             
             case 'crouton-simple-toggle':
-                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
                   "values": {
                     "value": false
                   },
@@ -386,7 +390,7 @@ dom-module(id="crouton-devices")
                 break;
             
             case 'crouton-line-chart':
-                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
                   "values": {
                       "labels": [1],
                       "series": [[60]],
@@ -401,7 +405,7 @@ dom-module(id="crouton-devices")
                 break;
             
             case 'crouton-rgb-slider':
-                this.deviceObj.deviceInfo.endPoints[this.newCardTitle] = {
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
                   "values": {
                     "red": 0,
                     "green": 0,
