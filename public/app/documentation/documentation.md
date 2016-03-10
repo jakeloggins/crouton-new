@@ -218,7 +218,7 @@ If your device only contains one card, like a toggle or counter display, you can
 
 ### Location based path rationale 
 
-A previous version of this dashboard used a much simpler path structure, with Inbox (for controlling) or Outbox (for confirming) always as the first element of the path. Apart from creative uses of device names and endpoints, there was no way for a user to specify a path. User-defined, location-based paths offers some advantages:
+A previous version of this dashboard used a much simpler path structure, with Inbox (for controlling) or Outbox (for confirming) always as the first element of the path. Apart from creative uses of device names and endpoints, there was no way for a user to specify a path. User-defined, location-based paths offer some advantages:
 
 * A more intuitive experience when viewing a raw stream of messages on the broker. The path tells you the location and the command describes what is happening. The output gets more detailed as you read from left to right.
 
