@@ -133,10 +133,16 @@ Addresses are what Crouton and the device will publish and subscribe to. They ar
 ```
 
 *command type*: Helps the device and crouton understand the purpose of a message. Generally, *control* is for messages going *to* the device and *confirm* is for messages *from* the device. Last will and testament messages are sent to *errors*. A final command type, *log*, is reserved for future use.
->control, confirm, errors, log
+
+```
+control, confirm, errors, log
+```
 
 *path*: a custom prefix where all messages will be published. Using location names is recommended. Command type words may not be used within the path.
-> ex: /house/downstairs/kitchen
+
+```
+ex: /house/downstairs/kitchen
+```
 
 *device name*: The name of the device the are targeting; from *name* key/value pair of *deviceInfo*
 
