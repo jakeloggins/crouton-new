@@ -43,6 +43,9 @@ dom-module(id="crouton-simple-dropdown")
           deviceName :{
             type: String
           },
+          devicePath:{
+            type: String
+          },
           endPointName :{
             type: String
           },
@@ -59,7 +62,8 @@ dom-module(id="crouton-simple-dropdown")
         newSelectedOption: function(value){
           var newValue = {};
           newValue.value = value;
-          this.mqtt.publishMessage("/inbox/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
+          this.mqtt.publishMessage(this.devicePath+"/control/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
+          //this.mqtt.publishMessage("/inbox/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
         }
       });
     }());

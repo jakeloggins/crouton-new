@@ -169,14 +169,47 @@ dom-module(id="crouton-connect-mqtt")
           });
           //on message
           this.client.on('message', function (topic, message) {
-            topicSplit = topic.toString().split("/");
-            box = topicSplit[1];
-            name = topicSplit[2];
-            address = topicSplit[3];
+            has_device_info = false;
+            // new method
+            command = topic.toString().match(/confirm|control|log|errors/);
+            parse_command = topic.toString().split(/confirm|control|log|errors/);
+            before_command = parse_command[0].toString().split("/").filter(Boolean);
+            after_command = parse_command[1].toString().split("/").filter(Boolean);
+
+
+            if (before_command[0] != "global") {
+                if (before_command[0] == "deviceInfo") {
+                  has_device_info = true;
+                  name = before_command[1];
+                } else {
+                    name = after_command[0];
+                    address = after_command[1];
+                }
+            }
+
             messageString = message.toString();
+            //- console.log(topic);
+            //- console.log(messageString);
+            //- console.log("command..");
+            //- console.log(command);
+            //- console.log("parse command..");
+            //- console.log(parse_command);
+            //- console.log("before command..");
+            //- console.log(before_command);
+            //- console.log("after command..");
+            //- console.log(after_command);
+            //- console.log(has_device_info);
+
+            // old method
+            //- topicSplit = topic.toString().split("/");
+            //- box = topicSplit[1];
+            //- name = topicSplit[2];
+            //- address = topicSplit[3];
+            //- messageString = message.toString();
 
             //Waiting for device info to check if device is online
-            if(box === "outbox" && address === "deviceInfo"){
+            if(command == "confirm" && has_device_info == true){
+              console.log("confirm and has device info");
               if(that.checkAutoConnect[name] || that.checkStatusAsync[name]){
                 if(that.checkStatusAsync[name]){
                   that.cancelAsync(that.checkStatusAsync[name]);//cancel timeout
@@ -185,7 +218,8 @@ dom-module(id="crouton-connect-mqtt")
                 if(that.checkAutoConnect[name]){
                   delete that.checkAutoConnect[name];
                 }
-                that.unsubscribeAddress("/outbox/"+name+"/deviceInfo");
+                //that.unsubscribeAddress("/outbox/"+name+"/deviceInfo");
+                that.unsubscribeAddress("/deviceInfo/"+name+"/confirm")
                 messageObj = JSON.parse(messageString);
                 var deviceCard = document.getElementById(that.deviceCardPrefix + name);
                 deviceCard.connectionStatus = "connected";//chance connection status
@@ -201,14 +235,14 @@ dom-module(id="crouton-connect-mqtt")
             }
 
             //lwt - device has disconnected
-            if(box === "outbox" && address === "lwt"){
+            if(command == "errors"){
               var deviceCard = document.getElementById(that.deviceCardPrefix + name);
               deviceCard.forcedDisconnect(messageString);
               return;
             }
 
             //If we are getting a message
-            if(box === "outbox"){
+            if(command == "confirm"){
               try{
                 var messageObj = JSON.parse(messageString);
                 that.croutonDashboard.updateValue(name,address,messageObj);
@@ -228,7 +262,7 @@ dom-module(id="crouton-connect-mqtt")
           if(typeof message != "string"){
             message = JSON.stringify(message);
           }
-          this.client.publish(topic, message);
+          this.client.publish(topic, message, 2);
         },
         noConnection: function(){
           if(this.connecting == true){
@@ -243,13 +277,27 @@ dom-module(id="crouton-connect-mqtt")
         unsubscribeAddress: function(address){
           this.client.unsubscribe(address);
         },
-        connectDevice: function(name,object){
-          this.subscribeAddress("/outbox/"+name+"/deviceInfo");
-          this.client.publish("/inbox/"+name+"/deviceInfo", "get");
+        connectDevice: function(name,object,assembledJson){
+
+          // new path routing
+          this.subscribeAddress("/deviceInfo/"+name+"/confirm");
+
+          if (assembledJson == false || assembledJson === undefined) {
+            // if assembledJson is false or undefined, get JSON from device
+            this.client.publish("/deviceInfo/"+name+"/control", "get", 2);
+          } else {
+            // otherwise, send JSON to /deviceInfo/name/control
+            console.log("connect-mqtt connectDevice...")
+            console.log(assembledJson);
+            console.log(JSON.stringify(assembledJson));
+            this.client.publish("/deviceInfo/"+name+"/control", JSON.stringify(assembledJson), 2);
+          }
           this.checkStatusAsync[name] = this.async(function(){
             object.connectionStatus = "not connected";
             this.fire('makeToast', { message: "Device <b>" + name + "</b> failed to connect", duration: 3000, status: "exclamation-circle" });
           }, 5000);
+
+            //  -- wait for return message within connectBroker
         },
         storageAvailable: function(type) {
         	try {

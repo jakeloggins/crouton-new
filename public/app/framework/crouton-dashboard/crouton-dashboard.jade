@@ -108,6 +108,7 @@ dom-module(id="crouton-dashboard")
               var element = document.createElement(elementName);
               element.setAttribute("id", this.cardId(device,address));
               element.setAttribute("device-name", device);
+              element.setAttribute("device-path", deviceJson.path);
               element.setAttribute("end-point-name", address);
               element.setAttribute("end-point-json", JSON.stringify(deviceJson.endPoints[address]));
 

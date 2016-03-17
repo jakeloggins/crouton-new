@@ -4,6 +4,7 @@ import json
 import random
 import os
 import threading
+import re
 
 # from flask import Flask
 
@@ -16,7 +17,10 @@ import threading
 
 def updateValue(endpoint,valueKey,value):
     global device
-    device["deviceInfo"]["endPoints"][endpoint]["values"][valueKey] = value
+    global j
+
+    if j != "{ }":
+        device["deviceInfo"]["endPoints"][endpoint]["values"][valueKey] = value
 
 def resetValues():
     global counter
@@ -50,73 +54,150 @@ def on_connect(client, userdata, flags, rc):
 
 #callback when we receive a published message from the server
 def on_message(client, userdata, msg):
+    global device
+    global json
+    global j
+    global clientName
+    global deviceJson
+    global device_path
     # print(msg.topic + ": " + str(msg.payload))
-    box = msg.topic.split("/")[1]
-    name = msg.topic.split("/")[2]
-    address = msg.topic.split("/")[3]
 
-    if box == "inbox" and str(msg.payload) == "get" and address == "deviceInfo":
-        global device
-        global json
-        newJson = json.dumps(device)
-        client.publish("/outbox/"+clientName+"/deviceInfo", newJson)
+    # new parsing method
+    # syntax: 
+        # global: / global / path / command / function
+        # device setup: / deviceInfo / name / command
+        # normal: path / command / name / endpoint
+    command = re.search('confirm|control|log|errors', msg.topic).group(0)
+    parse_command = re.split('/confirm/|/control/|/log/|/errors/', msg.topic)
+    before_command = filter(None, parse_command[0].split("/"))
+    # after command is not needed for deviceInfo, handled in global and normal instead
 
-    if box == "inbox" and address != "deviceInfo": # and (address == "discoLights" or address == "light2"):
+    ### Global Commands
+    if (before_command[0] == "global") & (command == "control"):
+        after_command = filter(None, parse_command[1].split("/"))
+        
+        # verify global command scope is within device path scope
+        device_path_split = filter(None, device_path.split("/"))
+        device_path_split[:0] = ["global"]
+
+        if len(before_command) <= len(device_path_split):
+            for d, g in zip(device_path_split,before_command):
+                if d == g:
+                    scope_match = True
+                else:
+                    scope_match = False
+                    break
+
+            if scope_match == True:
+                # look for function matches              
+                for key in device["deviceInfo"]["endPoints"]:
+                    try:
+                        function_match = after_command[0] == device["deviceInfo"]["endPoints"][key]["function"]
+                    except KeyError:
+                        function_match = False
+
+                    # update value of function matches
+                    if function_match == True:
+                        client.publish(device_path+"/confirm/"+clientName+"/"+key, str(msg.payload))
+                        
+                        newJson = json.loads(msg.payload)
+                        for item, value in newJson.iteritems():
+                            updateValue(key,item,value)
+
+
+
+    
+    ### Device Setup Commands
+    elif (before_command[0] == "deviceInfo") & (command == "control"):
+        # answer a get request by sending the device JSON
+        if str(msg.payload) == "get":
+            newJson = json.dumps(device)
+            client.publish("/deviceInfo/"+clientName+"/confirm", newJson)
+        # if no get request, grab the sent JSON and send it back
+        else:
+            # get and store the JSON
+            j = msg.payload
+            device = json.loads(j)
+            print j
+            # -- in future, need ability to send JSON to old name path but update it
+            #device["deviceInfo"]["name"] = clientName
+            deviceJson = json.dumps(device)
+
+            # subscribe to the appropriate endpoint channels
+            for key in device["deviceInfo"]["endPoints"]:
+                #print key
+                
+                #client.subscribe("/inbox/"+clientName+"/"+str(key))
+                client.subscribe(device_path+"/control/"+clientName+"/"+str(key))
+            
+            client.publish("/deviceInfo/"+clientName+"/confirm", deviceJson)
+
+    ### Normal Commands
+    else:
+        after_command = filter(None, parse_command[1].split("/"))
+        name = after_command[0]
+        address = after_command[1]
         #currently only echoing to simulate turning on the lights successfully
         #turn on light here and if success, do the following..
-        client.publish("/outbox/"+clientName+"/"+address, str(msg.payload))
+
+        #client.publish("/outbox/"+clientName+"/"+address, str(msg.payload))
+        client.publish(device_path+"/confirm/"+name+"/"+address, str(msg.payload))
+
         newJson = json.loads(msg.payload)
         for key, value in newJson.iteritems():
             updateValue(address,key,value)
 
 
-    if box == "inbox" and address == "reset":
-        #initial values
-        global crouton
-        global deviceJson
+    # if box == "inbox" and address == "reset":
+    #     #initial values
+    #     global crouton
+    #     global deviceJson
 
-        # global counter
-        # global barDoor
-        # global barDoorDelay
-        # global drinks
-        # global drinksDelay
-        # global occup
-        # global occupDelay
+    #     # global counter
+    #     # global barDoor
+    #     # global barDoorDelay
+    #     # global drinks
+    #     # global drinksDelay
+    #     # global occup
+    #     # global occupDelay
 
-        resetValues()
-        deviceJson = json.dumps(device)
-        client.publish("/outbox/"+clientName+"/drinks", '{"value":0}')
-        client.publish("/outbox/"+clientName+"/barDoor", '{"value":34}')
-        client.publish("/outbox/"+clientName+"/danceLights", '{"value":true}')
-        client.publish("/outbox/"+clientName+"/backDoorLock", '{"value":false}')
-        client.publish("/outbox/"+clientName+"/barLightLevel", '{"value":30}')
-        client.publish("/outbox/"+clientName+"/customMessage", '{"value":"Happy Hour is NOW!"}')
-        client.publish("/outbox/"+clientName+"/discoLights", '{"red":0,"green":0,"blue":0}')
-        client.publish("/outbox/"+clientName+"/occupancy", '{"series":[76]}')
+    #     resetValues()
+    #     deviceJson = json.dumps(device)
+    #     client.publish("/outbox/"+clientName+"/drinks", '{"value":0}')
+    #     client.publish("/outbox/"+clientName+"/barDoor", '{"value":34}')
+    #     client.publish("/outbox/"+clientName+"/danceLights", '{"value":true}')
+    #     client.publish("/outbox/"+clientName+"/backDoorLock", '{"value":false}')
+    #     client.publish("/outbox/"+clientName+"/barLightLevel", '{"value":30}')
+    #     client.publish("/outbox/"+clientName+"/customMessage", '{"value":"Happy Hour is NOW!"}')
+    #     client.publish("/outbox/"+clientName+"/discoLights", '{"red":0,"green":0,"blue":0}')
+    #     client.publish("/outbox/"+clientName+"/occupancy", '{"series":[76]}')
 
-        updateValue("drinks","value",0)
-        updateValue("barDoor","value",34)
-        updateValue("danceLights","value",True)
-        updateValue("backDoorLock","value",False)
-        updateValue("barLightLevel","value",30)
-        updateValue("customMessage","value","Happy Hour is NOW!")
-        updateValue("occupancy","series",[76])
-        print "Reseting values...."
+    #     updateValue("drinks","value",0)
+    #     updateValue("barDoor","value",34)
+    #     updateValue("danceLights","value",True)
+    #     updateValue("backDoorLock","value",False)
+    #     updateValue("barLightLevel","value",30)
+    #     updateValue("customMessage","value","Happy Hour is NOW!")
+    #     updateValue("occupancy","series",[76])
+    #     print "Reseting values...."
 
 def startup():
     global client
     global device
     global clientName
     global deviceJson
+    global device_path
 
-    client.will_set('/outbox/'+clientName+'/lwt', 'anythinghere', 0, False)
+    client.will_set(device_path+'/errors/'+clientName, 'failed', 0, False)
 
-    client.subscribe("/inbox/"+clientName+"/deviceInfo")
-    client.publish("/outbox/"+clientName+"/deviceInfo", deviceJson) #for autoreconnect
+    client.subscribe("/deviceInfo/"+clientName+"/control")
+    client.publish("/deviceInfo/"+clientName+"/confirm", deviceJson) #for autoreconnect
+    client.subscribe("/global/#") # to receive global commands
 
-    for key in device["deviceInfo"]["endPoints"]:
-        #print key
-        client.subscribe("/inbox/"+clientName+"/"+str(key))
+    if j != "{ }":
+        for key in device["deviceInfo"]["endPoints"]:
+            #print key
+            client.subscribe(str(device["deviceInfo"]["path"])+"/control/"+clientName+"/"+str(key))
 
 
 def on_disconnect(client, userdata, rc):
@@ -133,6 +214,8 @@ def update_values():
     global crouton
     global client
     global connectionStatus
+    global device
+    global device_path
 
     global counter
     global barDoor
@@ -148,7 +231,8 @@ def update_values():
     #barDoor
     if(counter >= barDoorDelay):
         barDoor = barDoor + 1 #increment value by one
-        client.publish("/outbox/"+clientName+"/barDoor", '{"value":'+str(barDoor)+'}')
+        #client.publish(device["deviceInfo"]["path"]+"/confirm/"+clientName+"/barDoor", '{"value":'+str(barDoor)+'}')
+        client.publish(device_path+"/confirm/"+clientName+"/barDoor", '{"value":'+str(barDoor)+'}')
         barDoorDelay = counter + 5 #wait 5 seconds for next increment
         updateValue("barDoor","value",barDoor)
         # print "barDoor is now: " + str(barDoor)
@@ -156,7 +240,7 @@ def update_values():
     #drinks
     if(counter >= drinksDelay):
         drinks = drinks + 1 #increment value by one
-        client.publish("/outbox/"+clientName+"/drinks", '{"value":'+str(drinks)+'}')
+        client.publish(device_path+"/confirm/"+clientName+"/drinks", '{"value":'+str(drinks)+'}')
         drinksDelay = counter + int(random.random()*5) #wait 5 seconds for next increment
         updateValue("drinks","value",drinks)
         # print "drinks is now: " + str(drinks)
@@ -165,7 +249,7 @@ def update_values():
     if(counter >= tempDelay):
         if(temp == 15):
             temp = 0
-        client.publish("/outbox/"+clientName+"/temperature", '{"update": {"labels":['+str(counter)+'],"series":[['+str(tempArray[temp])+']]}}')
+        client.publish(device_path+"/confirm/"+clientName+"/temperature", '{"update": {"labels":['+str(counter)+'],"series":[['+str(tempArray[temp])+']]}}')
         tempDelay = counter + 1 #wait 5 seconds for next increment
         temp = temp + 1
 
@@ -175,7 +259,7 @@ def update_values():
             occup = 78
         else:
             occup = 76
-        client.publish("/outbox/"+clientName+"/occupancy", '{"series":['+str(occup)+']}')
+        client.publish(device_path+"/confirm/"+clientName+"/occupancy", '{"series":['+str(occup)+']}')
         occupDelay = counter + int(random.random()*5) #wait 5 seconds for next increment
         updateValue("occupancy","series",occup)
         # print "drinks is now: " + str(drinks)
@@ -204,25 +288,28 @@ if __name__ == '__main__':
     # global occup
     # global occupDelay
 
-    clientName = "crouton-demo"
+    clientName = "crouton-demo-new"
 
-    # new path structure: location/function/*command type*/*device type*/*clientName*
+    # new path structure: /*path*/ *command type*/*clientName*/*endPoint key* 
     # command types: confirm, control, errors, log
-    # dashboard subscribes to path/confirm
-    # dashboard publishes to path/control
-    # last will and testament is sent to path/errors
-    # log data, if needed, can be sent to path/log
+    # dashboard subscribes to *path*/confirm/device name/endpoint
+    # dashboard publishes to *path*/control/device name/endpoint
+    # last will and testament is sent to *path*/errors/device name
+    # log data, if needed, can be sent to *path*/log/device name
 
-    # if any of the the scripts need to know where the data is coming from, they can use device type and the unique client name
+    # global commands can be sent to / global / *path* or *path fragment* / *command type* / *function*
+    # ex: /global/house/upstairs/control/lights {"value": false}
+    # will turn off all device endpoints located at path /house/upstairs/# with a "function": "lights" within their endpoint
 
     #device setup
+    #j = "{ }"
     j = """
     {
         "deviceInfo": {
             "status": "good",
             "color": "#4D90FE",
-            "name": "crouton-demo",
-            "path": "/house/downstairs/office/test/",
+            "name": "crouton-demo-new",
+            "path": "/house/downstairs/office/test",
             "type": "pythonscript",
             "endPoints": {
                 "barDoor": {
@@ -250,7 +337,8 @@ if __name__ == '__main__':
                         "false": "OFF"
                     },
                     "card-type": "crouton-simple-toggle",
-                    "title": "Dance Floor Lights"
+                    "title": "Dance Floor Lights",
+                    "function": "toggle"
                 },
                 "backDoorLock": {
                     "values": {
@@ -265,7 +353,8 @@ if __name__ == '__main__':
                         "false": "lock"
                     },
                     "card-type": "crouton-simple-toggle",
-                    "title": "Employee Door"
+                    "title": "Employee Door",
+                    "function": "toggle"
                 },
                 "lastCall": {
                     "values": {
@@ -354,10 +443,11 @@ if __name__ == '__main__':
     }
 
     """
-
     device = json.loads(j)
-    device["deviceInfo"]["name"] = clientName
+    # for now, clientName is static, located above
+    #device["deviceInfo"]["name"] = clientName
     deviceJson = json.dumps(device)
+
 
     print "Client Name is: " + clientName
 
@@ -366,8 +456,12 @@ if __name__ == '__main__':
     client.on_message = on_message
     client.on_disconnect = on_disconnect
     client.username_pw_set("","")
-    client.will_set('/outbox/'+clientName+'/lwt', 'anythinghere', 0, False)
 
+    if j != "{ }":
+        device_path = str(device["deviceInfo"]["path"])
+        client.will_set(device_path+'/errors/'+clientName, 'failed', 0, False)
+    else:
+        device_path = "/default"
 
     client.connect("localhost", 1883, 60)
     #client.connect("test.mosquitto.org", 1883, 60)

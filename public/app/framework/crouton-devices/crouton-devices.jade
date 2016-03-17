@@ -1,6 +1,16 @@
 link(rel="import", href="/static/common/bower/polymer/polymer.html")
 link(rel="import", href="/static/common/bower/paper-input/paper-input.html")
 link(rel="import", href="/static/common/bower/paper-button/paper-button.html")
+
+link(rel="import", href="/static/common/bower/paper-item/paper-item.html")
+link(rel="import", href="/static/common/bower/paper-listbox/paper-listbox.html")
+link(rel="import", href="/static/common/bower/paper-dropdown-menu/paper-dropdown-menu.html")
+link(rel="import", href="/static/common/bower/paper-toolbar/paper-toolbar.html")
+link(rel="import", href="/static/common/bower/paper-icon-button/paper-icon-button.html")
+
+link(rel="import", href="/static/common/bower/paper-tabs/paper-tabs.html")
+link(rel="import", href="/static/common/bower/paper-tabs/paper-tabs.html")
+
 link(rel="import", href="/static/common/bower/iron-form/iron-form.html")
 link(rel="import", href="/app-render/framework/crouton-card/crouton-card.jade")
 link(rel="import", href="/app-render/framework/crouton-device-card/crouton-device-card.jade")
@@ -21,14 +31,53 @@ dom-module(id="crouton-devices")
       template(is="dom-repeat", items="{{devices}}")
         crouton-device-card(id="{{deviceId(item)}}", device-name="{{item}}")
       div
-        paper-input(label="Enter new device name", type="text", value="{{newDeviceName::input}}", on-keypress="keyCheck", required)
-        div.addButtons
-          paper-button(type="submit", disabled$="{{validateNewDeviceInput(newDeviceName)}}", on-click="addDevice", raised).rightBtn Add Device
+        paper-toolbar
+          paper-input.grid__col--3-of-12(label="Enter new device name", type="text", value="{{newDeviceName::input}}", required)
+          paper-tabs(id="card_menu", selected="{{cardMenuSelection}}" attr-for-selected="id", on-click="validateCardType", noInk)
+            paper-tab(id="auto") Auto Import
+            paper-tab(id="crouton-simple-text") Text
+            paper-tab(id="crouton-simple-input") Input
+            paper-tab(id="crouton-simple-slider") Slider
+            paper-tab(id="crouton-simple-button") Button
+            paper-tab(id="crouton-simple-toggle") Toggle
+            paper-tab(id="crouton-line-chart") Line Chart
+            paper-tab(id="crouton-rgb-slider") RGB Slider
+          paper-input.grid__col--2-of-12(label="Enter path", type="text", value="{{newPath::input}}", required)
+        paper-toolbar
+          paper-input.grid__col--3-of-12(label="Enter card title", type="text", value="{{newCardTitle::input}}", required)
+          paper-input.grid__col--2-of-12(label="{{UnitsOptional}}", type="text", value="{{newUnits::input}}", disabled="{{!newUnitsEnabled}}", always-float-label)
+          paper-input.grid__col--2-of-12(label="{{MinOptional}}", type="text", value="{{newUnitsMin::input}}", disabled="{{!newUnitsMinEnabled}}", always-float-label)
+          paper-input.grid__col--2-of-12(label="{{MaxOptional}}", type="text", value="{{newUnitsMax::input}}", disabled="{{!newUnitsMaxEnabled}}", always-float-label)  
+          div.addButtons.grid__col--3-of-12
+            paper-button(type="submit", disabled$="{{validateNewDeviceInput(newDeviceName,newPath,newCardTitle,cardMenuSelection)}}", on-click="addDevice", raised).rightBtn Add Device
+        
+        //paper-toolbar
+          paper-dialog
+            paper-item Header
+            paper-dialog-scrollable Lorem ipsum...
 
 
-  style(is="custom-style").
+  style(is='custom-style').
+    paper-toolbar{
+      --paper-toolbar-background: rgb(250,250,250);
+      --paper-toolbar-content: {
+        color: grey;
+      };
+    }
+    paper-tabs{
+      --paper-tabs-selection-bar-color: rgb(78,205,196);
+    }
+    paper-tab{
+      padding-left: 10px;
+      padding-right: 10px;
+      padding-top: 30px;
+      padding-bottom: 0px;
+      font-size: 16px;
+      --paper-tab-ink: rgb(78,205,196);
+    }
     paper-input{
       --paper-input-container-focus-color: grey;
+      padding: 20px;
     }
 
   script.
@@ -38,7 +87,16 @@ dom-module(id="crouton-devices")
         ready: function() {
           var that = this;
           this.devices = [];
+          this.deviceObj = {};
+
+          this.cardMenuSelection = '';
           this.newDeviceName = '';
+          this.newPath = '';
+          this.newCardTitle = '';
+          this.newCardKey = '';
+
+          this.clearAllFalse();
+
           this.deviceCardPrefix = "crouton-device-";
 
           this.mqttCard = document.getElementById("crouton-mqtt");
@@ -55,6 +113,17 @@ dom-module(id="crouton-devices")
         listeners: {
 
         },
+        clearAllFalse: function() {
+          this.newUnits = '';
+          this.newUnitsMin = '';
+          this.newUnitsMax = '';
+          this.newUnitsEnabled = false;
+          this.newUnitsMinEnabled = false;
+          this.newUnitsMaxEnabled = false;
+          this.UnitsOptional = '';
+          this.MinOptional = '';
+          this.MaxOptional = '';
+        },
         attached: function(){
           if (this.mqttCard.storageAvailable('localStorage')) {
             var deviceList = localStorage.getItem("crouton-devicelist");
@@ -66,12 +135,109 @@ dom-module(id="crouton-devices")
             }
           }
         },
-        validateNewDeviceInput: function(newDeviceName){
-          //making sure there is a name not just white spaces... also need to filter special characteres later too
-          if(newDeviceName === null || newDeviceName.match(/^ *$/) !== null){
-            return true
+        validateCardType: function(e){
+          //- console.log("inside validateCardType..");
+          //- console.log(this.cardMenuSelection);
+          switch (this.cardMenuSelection) {
+            case 'auto':
+                this.clearAllFalse();
+                break;
+            case 'crouton-simple-text':
+                this.clearAllFalse();
+
+                this.newUnitsEnabled = true;
+                this.newUnitsMinEnabled = false;
+                this.newUnitsMaxEnabled = false;
+
+                this.UnitsOptional = 'Enter units (optional)';
+                this.MinOptional = '';
+                this.MaxOptional = '';
+                break;
+            case 'crouton-simple-input':
+                this.clearAllFalse();
+                break;
+            case 'crouton-simple-slider':
+                this.clearAllFalse();
+
+                this.newUnitsEnabled = true;
+                this.newUnitsMinEnabled = true;
+                this.newUnitsMaxEnabled = true;
+
+                this.newUnitsMin = '0';
+                this.newUnitsMax = '100';
+
+                this.UnitsOptional = 'Enter units (optional)';
+                this.MinOptional = 'min value (default: 0)';
+                this.MaxOptional = 'max value (default: 100)';
+                break;
+            case 'crouton-simple-button':
+                this.clearAllFalse();
+
+                this.newUnitsEnabled = true;
+                this.newUnitsMinEnabled = false;
+                this.newUnitsMaxEnabled = false;
+
+                this.newUnits = 'bell';
+
+                this.UnitsOptional = 'Enter icon name (optional)';
+                this.MinOptional = '';
+                this.MaxOptional = '';
+                break;
+            case 'crouton-simple-toggle':
+                this.clearAllFalse();
+                
+                this.newUnitsEnabled = false;
+                this.newUnitsMinEnabled = true;
+                this.newUnitsMaxEnabled = true;
+
+                this.newUnitsMin = 'OFF';
+                this.newUnitsMax = 'ON';
+
+                this.UnitsOptional = '';
+                this.MinOptional = 'default: "OFF"';
+                this.MaxOptional = 'default: "ON"';
+                break;
+            case 'crouton-line-chart':
+                this.clearAllFalse();
+
+                this.newUnitsEnabled = false;
+                this.newUnitsMinEnabled = true;
+                this.newUnitsMaxEnabled = true;
+
+                this.newUnitsMin = '0';
+                this.newUnitsMax = '100';
+
+                this.UnitsOptional = '';
+                this.MinOptional = 'min y-axis label (default: 0)';
+                this.MaxOptional = 'max y-axis label (default: 100)';
+                break;
+            case 'crouton-rgb-slider':
+                this.clearAllFalse();
+
+                this.newUnitsEnabled = false;
+                this.newUnitsMinEnabled = true;
+                this.newUnitsMaxEnabled = true;
+
+                this.newUnitsMin = '0';
+                this.newUnitsMax = '255';
+
+                this.UnitsOptional = '';
+                this.MinOptional = 'min value (default: 0)';
+                this.MaxOptional = 'max value (default: 255)';
+                break;
+          }
+        },
+        validateNewDeviceInput: function(newDeviceName,newPath,newCardTitle,cardMenuSelection){
+          //making sure there is a name not just white spaces... also need to filter special characteres later too .. true means add device button is disabled
+          if((newDeviceName && newPath && newCardTitle && cardMenuSelection === null) || (newCardTitle.match(/^ *$/) || newDeviceName.match(/^ *$/) || newPath.match(/^ *$|confirm|control|log|errors/) || cardMenuSelection.match(/^ *$/) !== null)){
+              //unless it is set to auto, in which case only device name needs to be filled in
+              if (cardMenuSelection == 'auto' && !(newDeviceName === null || newDeviceName.match(/^ *$/) !== null)) {
+                return false // enable
+              } else {
+                  return true // stay disabled
+              }
           } else {
-            return false
+              return false // enable 
           }
         },
         deviceId: function(name){
@@ -81,25 +247,31 @@ dom-module(id="crouton-devices")
           this.values[name] = {};
           return this.values[name];
         },
-        keyCheck: function(event){
-          if(event.keyCode == 13){
-            event.preventDefault();
-            this.addDevice();
-          }
-        },
         addDevice: function(name){
           var that = this;
+
           if(typeof(name) != "string") {
             name = this.newDeviceName;
           }
+          // make sure name is unique
           if(this.devices.indexOf(name) === -1){
-            this.push('devices', name);
-            this.newDeviceName = '';
+            
+            // now includes assembledJson to pass through to connect-mqtt function 
             this.async(function(){
-            this.connectDevice(name);
+            this.connectDevice(name,this.buildJson());
             }, 100);
+
+            // push name to devices
+            this.push('devices', name);
+            // form clearing moved to this.connectDevice so that buildJson retains cardMenuSelection
+
           } else {
             this.fire('makeToast', { message: "Uh on! <b>" + name + "</b> already exists as a device", duration: 2000 });
+            this.cardMenuSelection = '';
+            this.newDeviceName = '';
+            this.newPath = '';
+            this.newCardTitle = '';
+            this.clearAllFalse();
           }
         },
         removeDevice: function(name){
@@ -108,8 +280,19 @@ dom-module(id="crouton-devices")
               this.splice('devices', index, 1);
           }
         },
-        connectDevice: function(name,autoAdd){
-          document.getElementById(this.deviceCardPrefix + name).connectDevice();
+        connectDevice: function(name,assembledJson){
+          //- console.log("devices connectDevice ..");
+          //- console.log(assembledJson);
+          //- console.log(JSON.stringify(assembledJson));
+          document.getElementById(this.deviceCardPrefix + name).connectDevice(assembledJson);
+
+          // clear form
+          this.cardMenuSelection = '';
+          this.newDeviceName = '';
+          this.newPath = '';
+          this.newCardTitle = '';
+          this.clearAllFalse();
+
         },
         disconnectAllDevices: function(){
           for(var device in this.devices){
@@ -117,6 +300,132 @@ dom-module(id="crouton-devices")
               document.getElementById(this.deviceCardPrefix + name).disconnectDevice();
             }
           }
+        },
+        buildJson: function() {
+          // -- color appears to do nothing, should show up in cardBorder from crouton-card.css
+          
+          // make sure newPath has beginning slash and no end slash
+          if(this.newPath.charAt(0) != "/" && this.newPath != "") {
+            slash = "/";
+            this.newPath = slash.concat(this.newPath);
+          }
+          if(this.newPath.slice(-1) == "/") {
+            this.newPath = this.newPath.slice(0, -1);
+          }
+
+          // remove white space from so it can be a key
+          this.newCardKey = this.newCardTitle.replace(/ /g,"");
+
+          this.deviceObj = {
+            "deviceInfo": {
+              "status": "",
+              "color": "#0000FF",
+              "endPoints": { },
+              "name": this.newDeviceName,
+              "path": this.newPath
+              },
+          };
+          //- console.log("inside buildJson...");
+          //- console.log(this.cardMenuSelection);
+          switch (this.cardMenuSelection) {
+            case 'crouton-simple-text':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "units": this.newUnits,
+                  "values": {
+                    "value": 0
+                  },
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+
+            case 'crouton-simple-input':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "values": {
+                    "value": "default message"
+                  },
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+
+            case 'crouton-simple-slider':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "units": this.newUnits,
+                  "values": {
+                    "value": 0
+                  },
+                  "min": parseInt(this.newUnitsMin),
+                  "max": parseInt(this.newUnitsMax),
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+
+            case 'crouton-simple-button':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "values": {
+                    "value": true
+                  },
+                  "icons": {
+                    "icon": this.newUnits
+                  },
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+            
+            case 'crouton-simple-toggle':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "values": {
+                    "value": false
+                  },
+                  "labels": {
+                    "true": this.newUnitsMax,
+                    "false": this.newUnitsMin
+                  },
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+            
+            case 'crouton-line-chart':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "values": {
+                      "labels": [1],
+                      "series": [[60]],
+                      "update": ""
+                  },
+                  "max": parseInt(this.newUnitsMax),
+                  "low": parseInt(this.newUnitsMin),
+                  "high": parseInt(this.newUnitsMax),
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+            
+            case 'crouton-rgb-slider':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "values": {
+                    "red": 0,
+                    "green": 0,
+                    "blue": 0
+                  },
+                  "min": parseInt(this.newUnitsMin),
+                  "max": parseInt(this.newUnitsMax),
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+
+            // if auto or no card selection, do not return json
+            default:
+              this.deviceObj = {};
+              return false
+          };
+
+          // otherwise, return json
+          return this.deviceObj
         },
         addDemo: function(){
           this.addDevice("crouton-demo");

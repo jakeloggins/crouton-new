@@ -30,6 +30,9 @@ dom-module(id="crouton-simple-button")
           deviceName :{
             type: String
           },
+          devicePath:{
+            type: String
+          },
           endPointName :{
             type: String
           }
@@ -44,7 +47,8 @@ dom-module(id="crouton-simple-button")
         buttonPushed: function(){
           var newValue = {};
           newValue.value = true; //always true because it has to be true in order to be pushed
-          this.mqtt.publishMessage("/inbox/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
+          this.mqtt.publishMessage(this.devicePath+"/control/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
+          //this.mqtt.publishMessage("/inbox/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
         },
         newValues: function(changeRecord){
         }

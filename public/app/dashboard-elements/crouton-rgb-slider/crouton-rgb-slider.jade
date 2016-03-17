@@ -53,6 +53,9 @@ dom-module(id="crouton-rgb-slider")
           deviceName :{
             type: String
           },
+          devicePath:{
+            type: String
+          },
           endPointName :{
             type: String
           }
@@ -100,7 +103,8 @@ dom-module(id="crouton-rgb-slider")
         sendValue: function(event){
           var newValue = {};
           newValue[event.target.id] = this.localValue;
-          this.mqtt.publishMessage("/inbox/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
+          this.mqtt.publishMessage(this.devicePath+"/control/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
+          //this.mqtt.publishMessage("/inbox/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
         }
       });
     }());
