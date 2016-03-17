@@ -1,0 +1,12 @@
+{ 
+	"port": 1883, 
+	"host": "192.168.1.140", 
+	"keepalive": 60000, 
+	"clientId": "scheduler", 
+	"reconnectPeriod": 0, 
+	"will": {
+		"topic": "/schedule/error", 
+		"payload": "scheduler disconnected", 
+		"qos": 2
+		}
+}

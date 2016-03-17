@@ -292,10 +292,10 @@ if __name__ == '__main__':
 
     # new path structure: /*path*/ *command type*/*clientName*/*endPoint key* 
     # command types: confirm, control, errors, log
-    # dashboard subscribes to *path*/confirm
-    # dashboard publishes to *path*/control
-    # last will and testament is sent to *path*/errors
-    # log data, if needed, can be sent to *path*/log
+    # dashboard subscribes to *path*/confirm/device name/endpoint
+    # dashboard publishes to *path*/control/device name/endpoint
+    # last will and testament is sent to *path*/errors/device name
+    # log data, if needed, can be sent to *path*/log/device name
 
     # global commands can be sent to / global / *path* or *path fragment* / *command type* / *function*
     # ex: /global/house/upstairs/control/lights {"value": false}
