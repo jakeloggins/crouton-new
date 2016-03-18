@@ -1,0 +1,180 @@
+link(rel="import", href="/static/common/bower/polymer/polymer.html")
+link(rel="import", href="/static/common/bower/paper-input/paper-input.html")
+link(rel="import", href="/static/common/bower/paper-button/paper-button.html")
+
+link(rel="import", href="/static/common/bower/paper-item/paper-item.html")
+link(rel="import", href="/static/common/bower/paper-listbox/paper-listbox.html")
+link(rel="import", href="/static/common/bower/paper-dropdown-menu/paper-dropdown-menu.html")
+link(rel="import", href="/static/common/bower/paper-toolbar/paper-toolbar.html")
+link(rel="import", href="/static/common/bower/paper-icon-button/paper-icon-button.html")
+
+link(rel="import", href="/static/common/bower/paper-tabs/paper-tabs.html")
+link(rel="import", href="/static/common/bower/paper-tabs/paper-tabs.html")
+
+link(rel="import", href="/static/common/bower/iron-form/iron-form.html")
+link(rel="import", href="/app-render/framework/crouton-card/crouton-card.jade")
+link(rel="import", href="/app-render/framework/crouton-schedule-card/crouton-schedule-card.jade")
+
+
+dom-module(id="crouton-schedule")
+  template
+    link(rel="stylesheet", href="crouton-schedule.css")
+    crouton-card(drop-shadow="false", bottom-bar="false").grid__col.grid__col--12-of-12
+      p.header
+        span Schedules
+        template(is="dom-if", if="{{!schedules.length}}")
+          span.subTitle no schedules
+        template(is="dom-if", if="{{schedules.length}}")
+          span.subTitle
+            span {{schedules.length}}
+            span   Schedule(s)
+      template(is="dom-repeat", items="{{schedules}}")
+        crouton-schedule-card(id="{{scheduleID(item)}}", schedule-name="{{item}}")
+      div
+        paper-toolbar
+          paper-input.grid__col--6-of-12(label="Enter plain language schedule", type="text", value="{{newSchedLanguage::input}}", required)
+          paper-tabs(id="sched_menu", selected="{{actionSelection}}" attr-for-selected="id", selectedindex="0", on-click="validateActionType", noInk)
+            paper-tab(id="toggle") Toggle
+            paper-tab(id="button") Button
+            paper-tab(id="slide-to") Slide
+            paper-tab(id="slide-above") Slide Above
+            paper-tab(id="slide-below") Slide Below
+        paper-toolbar
+          paper-input.grid__col--4-of-12(label="Enter path", type="text", value="{{newSchedPath::input}}", required)
+          paper-input.grid__col--3-of-12(label="Enter device name" type="text", value="{{newSchedDeviceName::input}}", required)
+          paper-input.grid__col--3-of-12(label="Enter device endpoint", type="text", value="{{newSchedEndpoint::input}}", required)
+          div.addButtons.grid__col--2-of-12
+            paper-button(type="submit", disabled$="{{validateNewScheduleInput(newSchedPath,newSchedDeviceName,newSchedEndpoint,newSchedLanguage,actionSelection)}}", on-click="addScheduleCard", raised).rightBtn Add Schedule
+
+
+  style(is='custom-style').
+    paper-toolbar{
+      --paper-toolbar-background: rgb(250,250,250);
+      --paper-toolbar-content: {
+        color: grey;
+      };
+    }
+    paper-tabs{
+      --paper-tabs-selection-bar-color: rgb(78,205,196);
+    }
+    paper-tab{
+      padding-left: 10px;
+      padding-right: 10px;
+      padding-top: 30px;
+      padding-bottom: 0px;
+      font-size: 16px;
+      --paper-tab-ink: rgb(78,205,196);
+    }
+    paper-input{
+      --paper-input-container-focus-color: grey;
+      padding: 20px;
+    }
+
+  script.
+    (function() {
+      Polymer({
+        is: "crouton-schedule",
+        ready: function() {
+          //var that = this;
+          this.schedules = [];
+
+          this.scheduleCardPrefix = "crouton-schedule-";
+
+          this.actionSelection = '';
+          this.newSchedDeviceName = '';
+          this.newSchedPath = '';
+          this.newSchedEndpoint = '';
+          this.newSchedLanguage = '';
+
+        },
+        properties: {
+
+        },
+        listeners: {
+
+        },
+        attached: function(){
+          //- if (this.mqttCard.storageAvailable('localStorage')) {
+          //-   var deviceList = localStorage.getItem("crouton-devicelist");
+          //-   if(deviceList){
+          //-     var deviceListJson = JSON.parse(deviceList);
+          //-     for(var i = 0; i < deviceListJson.devices.length; i++){
+          //-       this.addDevice(deviceListJson.devices[i]);
+          //-     }
+          //-   }
+          //- }
+        },
+        validateActionType: function(){
+          console.log("inside validateActionType..");
+          console.log(this.actionSelection);
+        },
+        validateNewScheduleInput: function(newSchedPath,newSchedDeviceName,newSchedEndpoint,newSchedLanguage,actionSelection){
+          //making sure there is a name not just white spaces... also need to filter special characteres later too .. true means add device button is disabled
+          if((newSchedDeviceName && newSchedPath && newSchedEndpoint && newSchedLanguage === null) || (newSchedDeviceName.match(/^ *$/) || newSchedEndpoint.match(/^ *$/) || newSchedPath.match(/^ *$|confirm|control|log|errors/) || actionSelection.match(/^ *$/) !== null)){
+            return true // stay disabled
+          } else {
+              return false // enable 
+          }
+        },
+        scheduleId: function(name){
+          return this.scheduleCardPrefix + name;
+        },
+        deviceValuePointer: function(name){
+          this.values[name] = {};
+          return this.values[name];
+        },
+        addScheduleCard: function(name){
+          var that = this;
+
+          if(typeof(name) != "string") {
+            name = this.newDeviceName;
+          }
+          // make sure name is unique
+          if(this.devices.indexOf(name) === -1){
+            
+            // now includes assembledJson to pass through to connect-mqtt function 
+            this.async(function(){
+            this.connectDevice(name,this.buildJson());
+            }, 100);
+
+            // push name to devices
+            this.push('devices', name);
+            // form clearing moved to this.connectDevice so that buildJson retains cardMenuSelection
+
+          } else {
+            this.fire('makeToast', { message: "Uh on! <b>" + name + "</b> already exists as a device", duration: 2000 });
+            this.cardMenuSelection = '';
+            this.newDeviceName = '';
+            this.newPath = '';
+            this.newCardTitle = '';
+            this.clearAllFalse();
+          }
+        },
+        removeScheduleCard: function(name){
+          var index = this.devices.indexOf(name);
+          if (index > -1) {
+              this.splice('devices', index, 1);
+          }
+        },
+        getSchedules: function(name,assembledJson){
+          //- console.log("devices connectDevice ..");
+          //- console.log(assembledJson);
+          //- console.log(JSON.stringify(assembledJson));
+          document.getElementById(this.scheduleCardPrefix + name).connectDevice(assembledJson);
+
+          // clear form
+          this.cardMenuSelection = '';
+          this.newDeviceName = '';
+          this.newPath = '';
+          this.newCardTitle = '';
+          this.clearAllFalse();
+        },
+        clearAllSchedules: function(){
+          for(var device in this.devices){
+            if(typeof(this.devices[device]) == "string"){
+              document.getElementById(this.scheduleCardPrefix + name).disconnectDevice();
+            }
+          }
+        }
+      });
+    }());

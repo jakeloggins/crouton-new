@@ -5,6 +5,8 @@ link(rel="import", href="/app-render/framework/crouton-devices/crouton-devices.j
 link(rel="import", href="/app-render/framework/crouton-dashboard/crouton-dashboard.jade")
 link(rel="import", href="/app-render/framework/crouton-navigation/crouton-navigation.jade")
 link(rel="import", href="/app-render/framework/crouton-getting-started/crouton-getting-started.jade")
+link(rel="import", href="/app-render/framework/crouton-schedule/crouton-schedule.jade")
+
 
 
 dom-module(id="crouton-frame")
@@ -34,6 +36,10 @@ dom-module(id="crouton-frame")
           template(is="dom-if", if="{{mqttConnected}}")
             crouton-devices#crouton-devices
           crouton-connect-mqtt#crouton-mqtt(address="test.mosquitto.org", port="8080", client-name="{{randomClientName}}")
+
+        // SCHEDULE
+        div(class$="{{selectedPage('schedule',currentPage,'holder')}}")
+          crouton-schedule#crouton-schedule
 
 
   script.

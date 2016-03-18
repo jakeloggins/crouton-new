@@ -1,0 +1,64 @@
+@import "./public/common/css/style.less";
+
+@borderColor: rgba(128, 128, 128, 0.15);
+
+crouton-schedule-card {
+  margin-top: 20px;
+  display: block;
+  padding-bottom: 20px;
+
+  .scheduleTitle {
+    width: 100%;
+    display: inline-block;
+    border-bottom: 1px @borderColor solid;
+    color: rgb(100,100,100);
+
+    .scheduleName {
+      margin-right: 5px;
+      font-size: 20px;
+      float: left;
+      font-weight: 800;
+    }
+
+    .scheduleStatus {
+      font-size: 20px;
+      color: @fc-subtitle;
+      font-weight: lighter;
+      float: right;
+    }
+  }
+
+  .scheduleContent {
+    font-weight: 300;
+    min-height: 85px;
+    color: rgb(100,100,100);
+
+    .scheduleDetails {
+
+      .scheduleTitle {
+        font-weight: 400;
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .scheduleButtons {
+    display: inline-block;
+    float: right;
+
+    .buttons {
+      display: flex;
+    }
+
+    .checkbox {
+      margin-top: 5px;
+      padding-left: 5px;
+      text-align: right;
+
+      paper-checkbox {
+        display: inline;
+        margin-left: 10px;
+      }
+    }
+  }
+}
