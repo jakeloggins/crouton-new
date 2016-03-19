@@ -4,11 +4,11 @@ var jsonfile = require('jsonfile'),
 	fs = require('fs');
 
 var mqtt = require('mqtt'),
-	mqtt_config = require('./mqtt_broker_config.json'),
+	mqtt_config = require('./public/common/mqtt_broker_config.json'),
 	client = mqtt.connect(mqtt_config);
 
 // where schedules are stored and accessed on reconnect
-var file = 'data.json';
+var file = './public/common/schedule_data.json';
 
 // comprehensive object containing all schedules and later.setInterval functions for clearing
 var active = {};
@@ -18,7 +18,7 @@ function startup() {
 		// does file exist
 		fs.accessSync(file, fs.R_OK | fs.W_OK);
 
-		stored = require('./data.json');
+		stored = require(file);
 
 		// place stored schedules in active and rebuild later setIntervals
 		for (var key in stored){

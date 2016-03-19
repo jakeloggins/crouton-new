@@ -49,6 +49,12 @@ app.get(['/','/crouton','/crouton/*'], function (req, res) {
   returnObj.frameworkFiles = frameworkFiles;
   res.render('index',returnObj);
 });
+// schedule JSON file -- need to send JSON response for iron ajax
+app.get('/public/common/schedule_data.json',function(req,res){
+    json_data = require('./public/common/schedule_data.json');
+    res.json([json_data]);
+    //res.sendFile(__dirname + '/public/common/schedule_data.json');  
+});
 //intercept templating for css files in framework
 app.get('/app-render/framework/**/*.css', function (req, res) {
   res.sendFile(__dirname + "/public/app/framework/"+req.params[0]+"/"+req.params[2]+".css");

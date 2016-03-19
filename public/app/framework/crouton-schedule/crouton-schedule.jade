@@ -15,9 +15,12 @@ link(rel="import", href="/static/common/bower/iron-form/iron-form.html")
 link(rel="import", href="/app-render/framework/crouton-card/crouton-card.jade")
 link(rel="import", href="/app-render/framework/crouton-schedule-card/crouton-schedule-card.jade")
 
+link(rel="import", href="/static/common/bower/iron-ajax/iron-ajax.html")
+
 
 dom-module(id="crouton-schedule")
   template
+    iron-ajax(auto='', url='../../../public/common/schedule_data.json', last-response='{{schedules}}')
     link(rel="stylesheet", href="crouton-schedule.css")
     crouton-card(drop-shadow="false", bottom-bar="false").grid__col.grid__col--12-of-12
       p.header
@@ -28,8 +31,12 @@ dom-module(id="crouton-schedule")
           span.subTitle
             span {{schedules.length}}
             span   Schedule(s)
-      template(is="dom-repeat", items="{{schedules}}")
-        crouton-schedule-card(id="{{scheduleID(item)}}", schedule-name="{{item}}")
+      template(is="dom-repeat", items="{{_toArray(schedules)}}" as="init_obj")
+        template(is="dom-repeat", items="{{_toArray(init_obj.value)}}" as="device")
+          //p device {{device.name}} {{device.value}}
+          template(is="dom-repeat", items="{{_toArray(device.value)}}" as="endpoint")
+            //p endpoints {{endpoint.name}} {{endpoint.value.path}} {{endpoint.value.action}} {{endpoint.value}}
+            crouton-schedule-card(id="{{scheduleId(endpoint.name)}}", schedule-name="{{endpoint.name}}" device-name="{{device.name}}" schedule-json="{{endpoint.value}}")
       div
         paper-toolbar
           paper-input.grid__col--6-of-12(label="Enter plain language schedule", type="text", value="{{newSchedLanguage::input}}", required)
@@ -76,7 +83,6 @@ dom-module(id="crouton-schedule")
         is: "crouton-schedule",
         ready: function() {
           //var that = this;
-          this.schedules = [];
 
           this.scheduleCardPrefix = "crouton-schedule-";
 
@@ -88,12 +94,23 @@ dom-module(id="crouton-schedule")
 
         },
         properties: {
-
+          schedules: Object
         },
         listeners: {
 
         },
         attached: function(){
+          // read JSON file
+          // if not empty, push to schedules obj
+
+
+          this.keyfilter(this.schedules);
+          new_key = this.keyfilter(this.schedules[0]);
+          this.keyfilter(this.schedules[0][new_key]);
+          
+
+          console.log("attached..", this.schedules);
+
           //- if (this.mqttCard.storageAvailable('localStorage')) {
           //-   var deviceList = localStorage.getItem("crouton-devicelist");
           //-   if(deviceList){
@@ -104,9 +121,24 @@ dom-module(id="crouton-schedule")
           //-   }
           //- }
         },
-        validateActionType: function(){
-          console.log("inside validateActionType..");
-          console.log(this.actionSelection);
+        _toArray: function(obj) {
+            return Object.keys(obj).map(function(key) {
+                return {
+                    name: key,
+                    value: obj[key]
+                };
+            });
+        },
+        keyfilter: function(object) {
+          //console.log("..", Object.keys(object));
+          return Object.keys(object);
+        },
+        scheduleId: function(name){
+          return this.scheduleCardPrefix + name;
+        },
+        scheduleValuePointer: function(name){
+          this.values[name] = {};
+          return this.values[name];
         },
         validateNewScheduleInput: function(newSchedPath,newSchedDeviceName,newSchedEndpoint,newSchedLanguage,actionSelection){
           //making sure there is a name not just white spaces... also need to filter special characteres later too .. true means add device button is disabled
@@ -116,65 +148,26 @@ dom-module(id="crouton-schedule")
               return false // enable 
           }
         },
-        scheduleId: function(name){
-          return this.scheduleCardPrefix + name;
-        },
-        deviceValuePointer: function(name){
-          this.values[name] = {};
-          return this.values[name];
-        },
-        addScheduleCard: function(name){
-          var that = this;
-
-          if(typeof(name) != "string") {
-            name = this.newDeviceName;
-          }
-          // make sure name is unique
-          if(this.devices.indexOf(name) === -1){
-            
-            // now includes assembledJson to pass through to connect-mqtt function 
-            this.async(function(){
-            this.connectDevice(name,this.buildJson());
-            }, 100);
-
-            // push name to devices
-            this.push('devices', name);
-            // form clearing moved to this.connectDevice so that buildJson retains cardMenuSelection
-
-          } else {
-            this.fire('makeToast', { message: "Uh on! <b>" + name + "</b> already exists as a device", duration: 2000 });
-            this.cardMenuSelection = '';
-            this.newDeviceName = '';
-            this.newPath = '';
-            this.newCardTitle = '';
-            this.clearAllFalse();
-          }
-        },
-        removeScheduleCard: function(name){
-          var index = this.devices.indexOf(name);
-          if (index > -1) {
-              this.splice('devices', index, 1);
-          }
-        },
-        getSchedules: function(name,assembledJson){
-          //- console.log("devices connectDevice ..");
-          //- console.log(assembledJson);
-          //- console.log(JSON.stringify(assembledJson));
-          document.getElementById(this.scheduleCardPrefix + name).connectDevice(assembledJson);
-
-          // clear form
-          this.cardMenuSelection = '';
-          this.newDeviceName = '';
-          this.newPath = '';
-          this.newCardTitle = '';
-          this.clearAllFalse();
+        addScheduleCard: function(){
+          // publish message from form data
+          // wait 1 second
+          // read JSON file
+          // compare to old file
+          // if no change, toast that it didn't work
+          // if there was a change,
+            // call refreshSchedule
         },
         clearAllSchedules: function(){
-          for(var device in this.devices){
-            if(typeof(this.devices[device]) == "string"){
-              document.getElementById(this.scheduleCardPrefix + name).disconnectDevice();
-            }
-          }
+          // publish to / schedule / clearall, no payload
+            // this function is not in scheduler.js yet
+
+          // call refreshSchedules
+
+        },
+        refreshSchedules: function(){
+          // wait 1 second
+          // readJSON file
+          // push to schedules array
         }
       });
     }());
