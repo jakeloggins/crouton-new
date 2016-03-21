@@ -8,26 +8,38 @@ dom-module(id="crouton-schedule-card")
     div.scheduleTitle
       span.scheduleName {{deviceName}}/{{scheduleName}}
     div.scheduleContent.grid.contentMarginFix
-      div.grid__col.grid__col--2-of-12
+      div.grid__col.grid__col--1-of-12
         div.scheduleDetails
           template(is="dom-if", if="{{scheduleJson.action}}")
             div
-              span.scheduleTitle Action:
+              span.scheduleTitle Action
               span {{scheduleJson.action}}
-      div.grid__col.grid__col--2-of-12
+      div.grid__col.grid__col--1-of-12
         div.scheduleDetails
           template(is="dom-if", if="{{scheduleJson.value}}")
             div
-              span.scheduleTitle Value:
+              span.scheduleTitle Value
               span {{scheduleJson.value}}
-      div.grid__col.grid__col--6-of-12
+      div.grid__col.grid__col--2-of-12
         div.scheduleDetails
           template(is="dom-if", if="{{scheduleJson.schedule}}")
             div
-              span.scheduleTitle Schedule:
+              span.scheduleTitle Plain Language
+              span {{stringify(scheduleJson.plain_language)}}
+      div.grid__col.grid__col--5-of-12
+        div.scheduleDetails
+          template(is="dom-if", if="{{scheduleJson.schedule}}")
+            div
+              span.scheduleTitle Schedule Object
               span {{stringify(scheduleJson.schedule)}}
-
       div.grid__col.grid__col--2-of-12
+        div.scheduleDetails
+          template(is="dom-if", if="{{scheduleJson.schedule}}")
+            div
+              span.scheduleTitle Path
+              span {{scheduleJson.path}}
+
+      div.grid__col.grid__col--1-of-12
         div.scheduleButtons
           div.buttons
             paper-button(on-click="removeScheduleCard", class raised).rightBtn Delete
@@ -39,15 +51,12 @@ dom-module(id="crouton-schedule-card")
       Polymer({
         is: "crouton-schedule-card",
         ready: function() {
-          this.schedules = document.getElementById("crouton-schedule");
+          this.schedules_card = document.getElementById("crouton-schedule");
+          this.mqttCard = document.getElementById("crouton-mqtt");
         },
         properties: {
           scheduleName: {
             type: String
-          },
-          connectionStatus: {
-            type: String,
-            value: "connecting"
           },
           scheduleJson: {
             type: Object,
@@ -55,10 +64,6 @@ dom-module(id="crouton-schedule-card")
           },
           deviceName: {
             type: String
-          },
-          scheduleValues: {
-            type: Object,
-            notify: true
           }
         },
         listeners: {
@@ -66,12 +71,10 @@ dom-module(id="crouton-schedule-card")
         },
         removeScheduleCard: function(){
           // publish message / schedule / path / "clear" / deviceName / endPoint, no payload
-            // this function is not in scheduler.js yet
-
-          // call refresh schedules on schedule page
+          this.mqttCard.publishMessage("/schedule"+this.scheduleJson.path+"clear/"+this.deviceName+"/"+this.scheduleName, "clear");
+          this.schedules_card.delayRefreshSchedules();
         },
         stringify: function(obj){
-          console.log(obj);
           return JSON.stringify(obj);
         }
       });

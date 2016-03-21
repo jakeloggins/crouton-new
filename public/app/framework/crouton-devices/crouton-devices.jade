@@ -229,7 +229,7 @@ dom-module(id="crouton-devices")
         },
         validateNewDeviceInput: function(newDeviceName,newPath,newCardTitle,cardMenuSelection){
           //making sure there is a name not just white spaces... also need to filter special characteres later too .. true means add device button is disabled
-          if((newDeviceName && newPath && newCardTitle && cardMenuSelection === null) || (newCardTitle.match(/^ *$/) || newDeviceName.match(/^ *$/) || newPath.match(/^ *$|confirm|control|log|errors/) || cardMenuSelection.match(/^ *$/) !== null)){
+          if((newDeviceName && newPath && newCardTitle && cardMenuSelection === null) || (newCardTitle.match(/^ *$/) || newDeviceName.match(/^ *$/) || newPath.match(/^ *$|confirm|control|log|errors|clear|clearall|schedule|global/) || cardMenuSelection.match(/^ *$/) !== null)){
               //unless it is set to auto, in which case only device name needs to be filled in
               if (cardMenuSelection == 'auto' && !(newDeviceName === null || newDeviceName.match(/^ *$/) !== null)) {
                 return false // enable

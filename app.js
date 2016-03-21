@@ -1,9 +1,12 @@
 var express = require('express');
-var readdirp = require('readdirp');
+  readdirp = require('readdirp'),
+  jsonfile = require('jsonfile'),
+  later = require('later');
 
 var app = express();
 app.set('views', __dirname + '/public/app');
 app.set('view engine', 'jade');
+
 
 /*
 Set bower and app directories for static retrieval.
@@ -51,7 +54,9 @@ app.get(['/','/crouton','/crouton/*'], function (req, res) {
 });
 // schedule JSON file -- need to send JSON response for iron ajax
 app.get('/public/common/schedule_data.json',function(req,res){
-    json_data = require('./public/common/schedule_data.json');
+    json_data = jsonfile.readFileSync('./public/common/schedule_data.json');
+    //json_data = require('./public/common/schedule_data.json');
+    //console.log(json_data);
     res.json([json_data]);
     //res.sendFile(__dirname + '/public/common/schedule_data.json');  
 });

@@ -25,9 +25,9 @@ function startup() {
 			active[key] = {}; // append endpoint but don't erase other endpoints
 
 			for (endpoint in stored[key]) {
-				console.log(endpoint);
 				// get everything but interval from stored
 				var schedule = stored[key][endpoint]["schedule"],
+					plain_language = stored[key][endpoint]["plain_language"],
 					action = stored[key][endpoint]["action"],
 					path = stored[key][endpoint]["path"],
 					device_name = key,
@@ -36,6 +36,7 @@ function startup() {
 				active[key][endpoint] = {
 					"interval": later.setInterval(sendMSG.bind(null, action, path, device_name, endpoint, value), schedule),
 					"schedule": schedule,
+					"plain_language": plain_language,
 					"action": action,
 					"path": path,
 					"value": value,
@@ -55,65 +56,86 @@ function startup() {
 function onMSG(topic, payload) {
 
 	// only process if there's a valid action in the path
-	action_match = topic.match(/toggle|button|slide_to|slide_above|slide_below/);
+	action_match = topic.match(/toggle|button|slide_to|slide_above|slide_below|clear|clearall/);
 	if (action_match != null) {
 
-		// parse topic for path, device_name, endPoint, action, and value from message topic
-		// topic format: /schedule/[path]/[action]/[device_name]/[endPoint]/[value]
-		// topic = "/schedule/house/upstairs/guest/toggle/pi/nightlight/off";	
-		action = topic.toString().match(/toggle|button|slide_to|slide_above|slide_below/).toString();
+		// actually store the action
+		action = topic.toString().match(/toggle|button|slide_to|slide_above|slide_below|clear|clearall/).toString();
 
-		parse_action = topic.toString().split(/toggle|button|slide_to|slide_above|slide_below/);
-		before_action = parse_action[0].toString().split("/").filter(Boolean);
-		after_action = parse_action[1].toString().split("/").filter(Boolean);
-
-		// parse payload from raw text or completed schedule object
-		if (payload.charAt(0) == "{") {
-			schedule = payload;
+		// a message sent to schedule/clearall will dump everything
+		if (action == "clearall") {
+			active = {};
 		}
 		else {
-			schedule = later.parse.text(payload);
-			console.log(JSON.stringify(schedule));
-		}
+			// parse topic for path, device_name, endPoint, action, and value from message topic
+			// topic format: /schedule/[path]/[action]/[device_name]/[endPoint]/[value]
+			// topic = "/schedule/house/upstairs/guest/toggle/pi/nightlight/off";	
+			parse_action = topic.toString().split(/toggle|button|slide_to|slide_above|slide_below|clear/);
+			before_action = parse_action[0].toString().split("/").filter(Boolean);
+			after_action = parse_action[1].toString().split("/").filter(Boolean);
 
-		// create variables
-		path = parse_action[0].toString().split("/schedule").filter(Boolean).toString();
-		device_name = after_action[0].toString();
-		endpoint = after_action[1].toString();
-		if (action == "button") {
-			value = "";
-		} else {
-			value = after_action[2].toString();
-		}
+			// create variables
+			path = parse_action[0].toString().split("/schedule").filter(Boolean).toString();
+			device_name = after_action[0].toString();
+			endpoint = after_action[1].toString();
 
+			// on clear message
+			if (action == "clear") {
+				// delete endpoint
+				delete active[device_name][endpoint];
 
-		// create key from endpoint and device_name
-		//new_key = device_name.concat("_").concat(endpoint);
+				// delete device if no more endpoints
+				num_endpoints = Object.keys(active[device_name]).length;
+				if (num_endpoints == 0) {
+					delete active[device_name]
+				}
 
-		// check to see if key already exists, if so, clear it's setInterval
-		for (key in active) {
-			if (key == device_name) {
-				for (old_endpoint in active[key]) {
-					if (old_endpoint == endpoint) {
-						console.log("match found, clearing first");
-						active[key][endpoint].interval.clear();
+			} else {
+				// parse payload from raw text or completed schedule object
+				if (payload.charAt(0) == "{") {
+					schedule = payload;
+					plain_language = "N/A";
+				}
+				else {
+					schedule = later.parse.text(payload);
+					plain_language = payload;
+				}
+
+				// special treatment for actions with no value
+				if (action == "button") {
+					value = "";
+				} else {
+					value = after_action[2].toString();
+				}
+
+				// check to see if endpoint already exists, if so, clear it's setInterval
+				for (key in active) {
+					if (key == device_name) {
+						for (old_endpoint in active[key]) {
+							if (old_endpoint == endpoint) {
+								active[key][endpoint].interval.clear();
+							}
+						};
 					}
 				};
-			}
-			else {
-				// to make sure append to active works, but is not an overwrite
-				active[device_name] = {};
-			}
-		};
 
-		// append to active
-		active[device_name][endpoint] = {
-			"interval": later.setInterval(sendMSG.bind(null, action, path, device_name, endpoint, value), schedule),
-			"schedule": schedule,
-			"action": action,
-			"path": path,
-			"value": value,
-		};
+				// if there is no device name, 
+				if (!active.hasOwnProperty(device_name)) {
+					active[device_name] = {};
+				}
+
+				// append to active
+				active[device_name][endpoint] = {
+					"interval": later.setInterval(sendMSG.bind(null, action, path, device_name, endpoint, value), schedule),
+					"schedule": schedule,
+					"plain_language": plain_language,
+					"action": action,
+					"path": path,
+					"value": value,
+				};
+			}
+		}
+
 
 		//write all of active into JSON file
 		jsonfile.writeFile(file, active, {spaces: 2});

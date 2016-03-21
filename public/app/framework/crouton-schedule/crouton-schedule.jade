@@ -20,32 +20,25 @@ link(rel="import", href="/static/common/bower/iron-ajax/iron-ajax.html")
 
 dom-module(id="crouton-schedule")
   template
-    iron-ajax(auto='', url='../../../public/common/schedule_data.json', last-response='{{schedules}}')
+    iron-ajax(id="ajax", auto='true', url='../../../public/common/schedule_data.json', last-response='{{schedules}}')
     link(rel="stylesheet", href="crouton-schedule.css")
     crouton-card(drop-shadow="false", bottom-bar="false").grid__col.grid__col--12-of-12
       p.header
         span Schedules
-        template(is="dom-if", if="{{!schedules.length}}")
-          span.subTitle no schedules
-        template(is="dom-if", if="{{schedules.length}}")
-          span.subTitle
-            span {{schedules.length}}
-            span   Schedule(s)
       template(is="dom-repeat", items="{{_toArray(schedules)}}" as="init_obj")
         template(is="dom-repeat", items="{{_toArray(init_obj.value)}}" as="device")
-          //p device {{device.name}} {{device.value}}
           template(is="dom-repeat", items="{{_toArray(device.value)}}" as="endpoint")
-            //p endpoints {{endpoint.name}} {{endpoint.value.path}} {{endpoint.value.action}} {{endpoint.value}}
-            crouton-schedule-card(id="{{scheduleId(endpoint.name)}}", schedule-name="{{endpoint.name}}" device-name="{{device.name}}" schedule-json="{{endpoint.value}}")
+            crouton-schedule-card(id="{{scheduleId(device.name, endpoint.name)}}", schedule-name="{{endpoint.name}}" device-name="{{device.name}}" schedule-json="{{endpoint.value}}")
       div
         paper-toolbar
           paper-input.grid__col--6-of-12(label="Enter plain language schedule", type="text", value="{{newSchedLanguage::input}}", required)
           paper-tabs(id="sched_menu", selected="{{actionSelection}}" attr-for-selected="id", selectedindex="0", on-click="validateActionType", noInk)
             paper-tab(id="toggle") Toggle
             paper-tab(id="button") Button
-            paper-tab(id="slide-to") Slide
-            paper-tab(id="slide-above") Slide Above
-            paper-tab(id="slide-below") Slide Below
+            paper-tab(id="slide_to") Slide
+            paper-tab(id="slide_above") Slide Above
+            paper-tab(id="slide_below") Slide Below
+          paper-input.grid__col--1-of-12(label="Enter value", type="text", value="{{newSchedValue::input}}", disabled="{{!newSchedValueEnabled}}", required)
         paper-toolbar
           paper-input.grid__col--4-of-12(label="Enter path", type="text", value="{{newSchedPath::input}}", required)
           paper-input.grid__col--3-of-12(label="Enter device name" type="text", value="{{newSchedDeviceName::input}}", required)
@@ -82,8 +75,6 @@ dom-module(id="crouton-schedule")
       Polymer({
         is: "crouton-schedule",
         ready: function() {
-          //var that = this;
-
           this.scheduleCardPrefix = "crouton-schedule-";
 
           this.actionSelection = '';
@@ -91,35 +82,18 @@ dom-module(id="crouton-schedule")
           this.newSchedPath = '';
           this.newSchedEndpoint = '';
           this.newSchedLanguage = '';
+          this.newSchedValue = '';
+          this.newSchedValueEnabled = false;
 
         },
         properties: {
-          schedules: Object
+          schedules: Object,
         },
         listeners: {
 
         },
-        attached: function(){
-          // read JSON file
-          // if not empty, push to schedules obj
-
-
-          this.keyfilter(this.schedules);
-          new_key = this.keyfilter(this.schedules[0]);
-          this.keyfilter(this.schedules[0][new_key]);
-          
-
-          console.log("attached..", this.schedules);
-
-          //- if (this.mqttCard.storageAvailable('localStorage')) {
-          //-   var deviceList = localStorage.getItem("crouton-devicelist");
-          //-   if(deviceList){
-          //-     var deviceListJson = JSON.parse(deviceList);
-          //-     for(var i = 0; i < deviceListJson.devices.length; i++){
-          //-       this.addDevice(deviceListJson.devices[i]);
-          //-     }
-          //-   }
-          //- }
+        attached: function() {
+          this.mqttCard = document.getElementById("crouton-mqtt");
         },
         _toArray: function(obj) {
             return Object.keys(obj).map(function(key) {
@@ -129,45 +103,63 @@ dom-module(id="crouton-schedule")
                 };
             });
         },
-        keyfilter: function(object) {
-          //console.log("..", Object.keys(object));
-          return Object.keys(object);
-        },
-        scheduleId: function(name){
-          return this.scheduleCardPrefix + name;
-        },
-        scheduleValuePointer: function(name){
-          this.values[name] = {};
-          return this.values[name];
+        scheduleId: function(device_name, endpoint){
+          return this.scheduleCardPrefix + device_name + "-" + endpoint;
         },
         validateNewScheduleInput: function(newSchedPath,newSchedDeviceName,newSchedEndpoint,newSchedLanguage,actionSelection){
           //making sure there is a name not just white spaces... also need to filter special characteres later too .. true means add device button is disabled
-          if((newSchedDeviceName && newSchedPath && newSchedEndpoint && newSchedLanguage === null) || (newSchedDeviceName.match(/^ *$/) || newSchedEndpoint.match(/^ *$/) || newSchedPath.match(/^ *$|confirm|control|log|errors/) || actionSelection.match(/^ *$/) !== null)){
+          if((newSchedDeviceName && newSchedPath && newSchedEndpoint && newSchedLanguage === null) || (newSchedDeviceName.match(/^ *$/) || newSchedEndpoint.match(/^ *$/) || newSchedPath.match(/^ *$|confirm|control|log|errors|clear|clearall/) || actionSelection.match(/^ *$/) !== null)){
             return true // stay disabled
           } else {
               return false // enable 
           }
         },
+        validateActionType: function(){
+          if (this.actionSelection == "button") {
+            this.newSchedValueEnabled = false;
+            this.newSchedValue = '';
+          } else {
+            this.newSchedValueEnabled = true;
+          }
+        },
         addScheduleCard: function(){
-          // publish message from form data
-          // wait 1 second
-          // read JSON file
-          // compare to old file
-          // if no change, toast that it didn't work
-          // if there was a change,
-            // call refreshSchedule
+          // make sure newPath has beginning slash and no end slash
+          if(this.newSchedPath.charAt(0) != "/" && this.newSchedPath != "") {
+            slash = "/";
+            this.newSchedPath = slash.concat(this.newSchedPath);
+          }
+          if(this.newSchedPath.slice(-1) == "/") {
+            this.newSchedPath = this.newSchedPath.slice(0, -1);
+          }
+          this.mqttCard.publishMessage("/schedule"+this.newSchedPath+"/"+this.actionSelection+"/"+this.newSchedDeviceName+"/"+this.newSchedEndpoint+"/"+this.newSchedValue, this.newSchedLanguage);
+          this.delayRefreshSchedules();
+          this.clearVariables();
+
         },
         clearAllSchedules: function(){
           // publish to / schedule / clearall, no payload
-            // this function is not in scheduler.js yet
-
-          // call refreshSchedules
-
+          this.mqttCard.publishMessage("/schedule/clearall", "clear");
+          this.delayRefreshSchedules();
         },
         refreshSchedules: function(){
-          // wait 1 second
-          // readJSON file
-          // push to schedules array
+          // update schedules array from JSON file
+          //this.schedules_count = 0;
+          this.$.ajax.generateRequest();
+        },
+        delayRefreshSchedules: function(){
+          this.async(function(){
+            this.refreshSchedules();
+            }, 1000);
+        },
+        clearVariables: function() {
+          this.actionSelection = '';
+          this.newSchedDeviceName = '';
+          this.newSchedPath = '';
+          this.newSchedEndpoint = '';
+          this.newSchedLanguage = '';
+          this.newSchedValue = '';
+          this.newSchedValue = '';
+          this.newSchedValueEnabled = false;
         }
       });
     }());
