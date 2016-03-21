@@ -13,50 +13,50 @@ Crouton is a dashboard that lets you visualize and control your IOT devices with
 Getting Started
 --------------
 
-To start, we will need a **device** and a **MQTT Broker**. Don't have either? No worries, because we have several demo options for you!
+  To start, we will need a **device** and a **MQTT Broker**. Don't have either? No worries, because we have several demo options for you!
 
-### The Device
+  ### The Device
 
-The device can be anything from hardware (ESP8266) to a Python script. As long as the device can use the MQTT protocol and encode/decode JSON, then it will work as a device. While this guide is not about setting up specific devices, we do have reference links for the ESP8266 and Python MQTT libraries.
+  The device can be anything from hardware (ESP8266) to a Python script. As long as the device can use the MQTT protocol and encode/decode JSON, then it will work as a device. While this guide is not about setting up specific devices, we do have reference links for the ESP8266 and Python MQTT libraries.
 
-##### ESP8266
+  ##### ESP8266
 
-If you are using LUA scripting, then the Nodemcu Firmware has MQTT and JSON capabilities already built.
+  If you are using LUA scripting, then the Nodemcu Firmware has MQTT and JSON capabilities already built.
 
->ESP8266 Lua [Nodemcu documentation on Github](https://github.com/nodemcu/nodemcu-firmware/wiki/nodemcu_api_en)
+  >ESP8266 Lua [Nodemcu documentation on Github](https://github.com/nodemcu/nodemcu-firmware/wiki/nodemcu_api_en)
 
-Sample code for the ESP8266 which included a togglable and dimmable light. Refer to the [*/client/* directory](https://github.com/jakeloggins/crouton-new/tree/master/clients) for more details.
+  Sample code for the ESP8266 which included a togglable and dimmable light. Refer to the [*/client/* directory](https://github.com/jakeloggins/crouton-new/tree/master/clients) for more details.
 
-##### Python
+  ##### Python
 
-The package we suggest to use for Python client is [paho-mqtt](http://www.eclipse.org/paho/). It has the necessary MQTT libraries to get up and running.
+  The package we suggest to use for Python client is [paho-mqtt](http://www.eclipse.org/paho/). It has the necessary MQTT libraries to get up and running.
 
->Python MQTT library: [Paho-mqtt](http://www.eclipse.org/paho/)
+  >Python MQTT library: [Paho-mqtt](http://www.eclipse.org/paho/)
 
-Sample code for Python dummy client which includes most of the dashboard elements. Refer to the [*/client/* directory](https://github.com/jakeloggins/crouton-new/tree/master/clients) for more details.
+  Sample code for Python dummy client which includes most of the dashboard elements. Refer to the [*/client/* directory](https://github.com/jakeloggins/crouton-new/tree/master/clients) for more details.
 
-<!-- ##### Test Clients
+  <!-- ##### Test Clients
 
-In addition to the sample code above, we have a always running (we try!) test client under the name "crouton-demo" on the "test.mosquitto.org" public broker. The status of the device can be checked [here](http://crouton-demo-client.mybluemix.net/). And of course, check out the [getting started](/crouton/gettingStarted) for more details.
+  In addition to the sample code above, we have a always running (we try!) test client under the name "crouton-demo" on the "test.mosquitto.org" public broker. The status of the device can be checked [here](http://crouton-demo-client.mybluemix.net/). And of course, check out the [getting started](/crouton/gettingStarted) for more details.
 
->Demo page detailing [Crouton test clients](http://crouton.mybluemix.net/crouton/gettingStarted) -->
+  >Demo page detailing [Crouton test clients](http://crouton.mybluemix.net/crouton/gettingStarted) -->
 
-### MQTT Broker
+  ### MQTT Broker
 
-MQTT Broker takes care of delivering messages to its clients via a publish and subscribe model. The MQTT Broker required for Crouton *must support web sockets*. Web sockets allow Crouton to connect to it. While there are free options to download and run your own MQTT Broker, there are also free to use public MQTT Brokers that are already set up. We default to Mosquitto's publicly hosted broker.
+  MQTT Broker takes care of delivering messages to its clients via a publish and subscribe model. The MQTT Broker required for Crouton *must support web sockets*. Web sockets allow Crouton to connect to it. While there are free options to download and run your own MQTT Broker, there are also free to use public MQTT Brokers that are already set up. We default to Mosquitto's publicly hosted broker.
 
->Free downloadable brokers:
->[Mosquitto](http://mosquitto.org/),
->[Emqttd](http://emqtt.io/)
->
->Free publicly hosted brokers:
->[Mosquitto](http://test.mosquitto.org/),
->[HiveMQ](http://www.hivemq.com/try-out/)
+  >Free downloadable brokers:
+  >[Mosquitto](http://mosquitto.org/),
+  >[Emqttd](http://emqtt.io/)
+  >
+  >Free publicly hosted brokers:
+  >[Mosquitto](http://test.mosquitto.org/),
+  >[HiveMQ](http://www.hivemq.com/try-out/)
 
 
-Remember, Crouton must connect to the web socket port of the MQTT Broker, while devices will usually connect to the regular port.
+  Remember, Crouton must connect to the web socket port of the MQTT Broker, while devices will usually connect to the regular port.
 
-<!-- In the future, we plan to have Crouton's own MQTT Broker which will have better up time and security in comparison to public brokers. -->
+  <!-- In the future, we plan to have Crouton's own MQTT Broker which will have better up time and security in comparison to public brokers. -->
 
 How it Works
 ==============
@@ -428,6 +428,56 @@ Example:
 }
 ```
 
+### Line Chart
+
+![Crouton-chart-line](https://raw.githubusercontent.com/edfungus/Crouton/master/public/common/images/crouton-chart-line.png)
+
+</br> A simple line chart with multiple lines available. The *labels* corresponds to the x axis values and the *series* corresponds to the y axis values. Multiple sets of (x,y) values can be passed at once as long as the array length of labels and series are matched. The reason why series is multidimensional is so that multiple lines can be drawn where each array in series corresponds to a line. *It is suggested that labels and series be prepopulated with one set of (x,y) value for each line* The *update* parameter is expected on update and holds a copy of *values* with the new *labels* and *series* within. *Max* refers to the maximum number of data points based on the x axis is shown. *low* and *high* refers to the maximum y values expected.
+
+*It is suggested that labels and series be prepopulated with one set of (x,y) value for each line*
+
+```json
+Device -> Crouton
+Name: crouton-chart-line
+
+Example:
+"temperature": {
+    "values": {
+        "labels": [1],  [required]
+        "series": [[60]],  [required]
+        "update": null  [required]  
+    },
+    "max": 11, [required]
+    "low": 58,  [required]
+    "high": 73,  [required]
+    "card-type": "crouton-chart-line",  [required]
+    "title": "Temperature (F)" [optional]
+}
+
+3 lines and 1 value:
+"values": {
+    "labels": [1],
+    "series": [[60],[2],[543]],
+    "update": null  
+}
+
+3 lines and 2 values:
+"values": {
+    "labels": [1,2],
+    "series": [[60,62],[2,4],[543,545]],
+    "update": null  
+}
+
+To update temperature:
+"values": {
+    "labels": null,
+    "series": null,
+    "update": {
+      "labels" : [2],
+      "series": [[62]]
+    }
+}
+```
 
 ## Advanced cards
 
@@ -454,3 +504,79 @@ Example:
   "title": "RGB Lights" [optional]
 }
 ```
+
+Scheduling
+==========
+
+The scheduler is a node.js app that can send normal MQTT commands to endpoints at specified times. It can be used through the dashboard or by sending a message to the /schedule topic.
+
+### Command Syntax
+On recepit of a message to /schedule/#, the scheduler gets information about the endpoint from the rest of the message topic, and parses the message payload to create the schedule. The example message will ask the scheduler to lock the "backDoorLock" endpoint every night at 6pm. To change it to every night at 7pm, simply send another message to the same topic with a payload of "every night at 7pm."
+```
+/schedule/[path]/[action type]/[device name]/[endPoint name]/[value]
+```
+```
+example schedule message:
+topic: /schedule/house/downstairs/office/toggle/crouton-demo/backDoorLock/off 
+payload: "every night at 6pm"
+```
+
+### Action Types and Values
+* *toggle*: Toggles a Simple Toggle card. Accepts true/false or on/off as values.
+* *button*: Presses a Simple Button card. Does not require a value.
+* *slide_to*: Moves a Simple Slider card to the value.
+* *slide_above*: Moves a Simple Slider card to the value, unless the current value is higher.
+* *slide_below*: Moves a Simple Slider card to the value, unless the current value is lower.
+
+**Note**: slide_above and slide_below are not yet supported.
+
+### Removing Schedules
+* *clear*: deletes a previously created schedule.
+* *clearall*: deletes all active schedules. Should be sent to /schedule/clearall/ topic.
+
+To delete a schedule, send a message to:
+```
+/schedule/[path]/ clear /[device name]/[endPoint name]/[value]
+```
+To delete all active schedules send a message to:
+```
+/schedule/clearall
+```
+
+**Note**: If you use the scheduler, you cannot use any of the action type keywords in a path, device_name, or endpoints.
+
+### Dashboard Interface
+The schedule page is a more visual way to add, edit, or delete schedules. Currently active schedules will always be displayed above the form. You can only set one schedule per endpoint, to edit/overwrite an existing schedule, re-enter it by using the form.
+
+If an endpoint was added earlier from the dashboard on the connections page, it's name is the card title converted to camelCase. It's good practice to name all of your endpoints in camelCase.
+
+**Note**: The dashboard interface doesn't do anything more than format and send a message to the scheduler. 
+
+### Plain Language Parsing
+
+Plain language schedules are parsed using later.js. A complete guide to text parsing can be found [here](http://bunkat.github.io/later/parsers.html#text).
+
+### Schedule Objects
+You can also place your own JSON schedules in the message payload. Later.js has a complete guide to forming schedule objects [here](http://bunkat.github.io/later/schedules.html).
+
+**Note**: Later.js is listed as a dependency in the bower file. You will not have to install it separately.
+
+### Starting the Scheduler
+* Navigate to the main repo folder
+* Enter "node scheduler.js"
+* A connection message and list of active schedules will display
+
+### Stored JSON files
+Active schedules are stored in the /public/common/schedule_data.json file to resume normally after system restart and to allow for direct editing. You can also directly edit schedule objects in this file, but must restart the scheduler for them to take effect. 
+
+The scheduler connects to the MQTT broker from the information stored in the /public/common/mqtt_broker_config.json file.
+
+
+### Unsupported Card Types
+These card types only report data and thus are not supported:
+  * Line Chart
+  * Donut Chart
+
+These card types are not yet supported:
+  * Simple Input
+  * RGB Slider
