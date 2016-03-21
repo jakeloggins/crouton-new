@@ -63,7 +63,7 @@ How it Works
 
 After getting a device and a broker, we simply need to hook everything up. The beauty of Crouton is that, like the device, *Crouton is also a client to the same MQTT Broker.* As a result, Crouton does not rely on any additional centralized server than does your MQTT device. In fact, Crouton is purely a frontend application with no backend services.
 
-![MQTT diagram with Crouton and devices](/static/common/images/mqtt.png)
+![MQTT diagram with Crouton and devices](https://raw.githubusercontent.com/jakeloggins/crouton-new/master/public/common/images/mqtt.png)
 
 Being a distributed system, like the one shown above, connection between the device and Crouton is only via the MQTT Broker. The communication between Crouton and the device is defined by a protocol that utilizes addresses and MQTT's last will and testament (LWT) feature.
 
@@ -284,7 +284,7 @@ crouton-simple-[card type]
 
 ### Simple Text
 
-![Crouton-simple-text](/static/common/images/crouton-simple-text.png) </br> Simple text is used to display a value (text or number) on the dashboard from the device to Crouton.
+![Crouton-simple-text](https://raw.githubusercontent.com/jakeloggins/crouton-new/master/public/common/images/crouton-simple-text.png) </br> Simple text is used to display a value (text or number) on the dashboard from the device to Crouton.
 
 ```json
 Device -> Crouton
@@ -303,7 +303,7 @@ Example:
 
 ### Simple Input
 
-![Crouton-simple-text](/static/common/images/crouton-simple-input.png) </br> Simple input is similar to simple text except the user can update the value on the device from Crouton. There is no length restriction of the value by Crouton.
+![Crouton-simple-text](https://raw.githubusercontent.com/jakeloggins/crouton-new/master/public/common/images/crouton-simple-input.png) </br> Simple input is similar to simple text except the user can update the value on the device from Crouton. There is no length restriction of the value by Crouton.
 
 ```json
 Device <-> Crouton
@@ -321,7 +321,7 @@ Example:
 
 ### Simple Slider
 
-![Crouton-simple-text](/static/common/images/crouton-simple-slider.png) </br> Simple slider allows the user to select continuous values within a given range. Both the large number and the slider will attempt the give the real device value at all times except when the user is sliding.
+![Crouton-simple-text](https://raw.githubusercontent.com/jakeloggins/crouton-new/master/public/common/images/crouton-simple-slider.png) </br> Simple slider allows the user to select continuous values within a given range. Both the large number and the slider will attempt the give the real device value at all times except when the user is sliding.
 
 ```json
 Device <-> Crouton
@@ -342,7 +342,7 @@ Example:
 
 ### Simple Button
 
-![Crouton-simple-text](/static/common/images/crouton-simple-button.png) </br> Simple button is one directional, sending a signal (with no meaningful value) from Crouton to the device. However, this is still a bi-directional card because the button is only enable if value is *true*. If the device updates the value of the card to *false*, the button will be disabled.
+![Crouton-simple-text](https://raw.githubusercontent.com/jakeloggins/crouton-new/master/public/common/images/crouton-simple-button.png) </br> Simple button is one directional, sending a signal (with no meaningful value) from Crouton to the device. However, this is still a bi-directional card because the button is only enable if value is *true*. If the device updates the value of the card to *false*, the button will be disabled.
 
 ```json
 Device <-> Crouton
@@ -363,7 +363,7 @@ Example:
 
 ### Simple Toggle
 
-![Crouton-simple-text](/static/common/images/crouton-simple-toggle.png) </br> Simple toggle allows a boolean value to be changed by both Crouton and the device. In the larger value display, priority for display is icon, labels, boolean text. If no labels or icons are given, the words true and false will be used. The labels around the toggle is only defined by *labels* object.
+![Crouton-simple-text](https://raw.githubusercontent.com/jakeloggins/crouton-new/master/public/common/images/crouton-simple-toggle.png) </br> Simple toggle allows a boolean value to be changed by both Crouton and the device. In the larger value display, priority for display is icon, labels, boolean text. If no labels or icons are given, the words true and false will be used. The labels around the toggle is only defined by *labels* object.
 
 ```json
 Device <-> Crouton
@@ -394,9 +394,9 @@ These cards are for charts!
 
 ### Donut Chart
 
-![Crouton-chart-donut-1](/static/common/images/crouton-chart-donut-1.png)
+![Crouton-chart-donut-1](https://raw.githubusercontent.com/jakeloggins/crouton-new/master/public/common/images/crouton-chart-donut-1.png)
 
-![Crouton-chart-donut-1](/static/common/images/crouton-chart-donut-2.png)
+![Crouton-chart-donut-1](https://raw.githubusercontent.com/jakeloggins/crouton-new/master/public/common/images/crouton-chart-donut-2.png)
 
 </br> A fairly flexible pie chart. The *labels* and *series* (values) are in arrays. The labels are optional (must have at least an empty array) and will not show if empty. *message* is displayed in the center of the donut. *centerSum* (defualt is false) sums up all of the values and replaces *message*. *total* is the value that will fill up the complete circle. If sum of *series* is beyond *total*, the extra parts will be truncated.
 
@@ -430,7 +430,7 @@ Example:
 
 ### Line Chart
 
-![Crouton-chart-line](https://raw.githubusercontent.com/edfungus/Crouton/master/public/common/images/crouton-chart-line.png)
+![Crouton-chart-line](https://raw.githubusercontent.com/jakeloggins/crouton-new/master/public/common/images/crouton-chart-line.png)
 
 </br> A simple line chart with multiple lines available. The *labels* corresponds to the x axis values and the *series* corresponds to the y axis values. Multiple sets of (x,y) values can be passed at once as long as the array length of labels and series are matched. The reason why series is multidimensional is so that multiple lines can be drawn where each array in series corresponds to a line. *It is suggested that labels and series be prepopulated with one set of (x,y) value for each line* The *update* parameter is expected on update and holds a copy of *values* with the new *labels* and *series* within. *Max* refers to the maximum number of data points based on the x axis is shown. *low* and *high* refers to the maximum y values expected.
 
@@ -485,7 +485,7 @@ These cards are a little bit more specific to certain applications.
 
 ### RGB Slider
 
-![Crouton-rgb-slider](/static/common/images/crouton-rgb-slider.png) </br> RGB slider is three combined slider for the specific application of controlling a RGB led. Prepopulate the values for red, green and blue by setting in values.
+![Crouton-rgb-slider](https://raw.githubusercontent.com/jakeloggins/crouton-new/master/public/common/images/crouton-rgb-slider.png) </br> RGB slider is three combined slider for the specific application of controlling a RGB led. Prepopulate the values for red, green and blue by setting in values.
 
 ```json
 Device <-> Crouton
