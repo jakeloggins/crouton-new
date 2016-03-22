@@ -56,11 +56,11 @@ function startup() {
 function onMSG(topic, payload) {
 
 	// only process if there's a valid action in the path
-	action_match = topic.match(/toggle|button|slide_to|slide_above|slide_below|clear|clearall/);
+	action_match = topic.match(/toggle|button|slide_to|slide_above|slide_below|clearall|clear\b/);
 	if (action_match != null) {
 
 		// actually store the action
-		action = topic.toString().match(/toggle|button|slide_to|slide_above|slide_below|clear|clearall/).toString();
+		action = topic.toString().match(/toggle|button|slide_to|slide_above|slide_below|clearall|clear\b/).toString();
 
 		// a message sent to schedule/clearall will dump everything
 		if (action == "clearall") {

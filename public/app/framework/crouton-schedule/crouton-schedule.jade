@@ -17,6 +17,11 @@ link(rel="import", href="/app-render/framework/crouton-schedule-card/crouton-sch
 
 link(rel="import", href="/static/common/bower/iron-ajax/iron-ajax.html")
 
+link(rel="import", href="/static/common/bower/paper-fab/paper-fab.html")
+link(rel="import", href="/static/common/bower/iron-icons/iron-icons.html")
+link(rel="import", href="/static/common/bower/iron-icon/iron-icon.html")
+link(rel="import", href="/static/common/bower/fontawesome-iconset/fa-all.html")
+
 
 dom-module(id="crouton-schedule")
   template
@@ -25,6 +30,7 @@ dom-module(id="crouton-schedule")
     crouton-card(drop-shadow="false", bottom-bar="false").grid__col.grid__col--12-of-12
       p.header
         span Schedules
+
       template(is="dom-repeat", items="{{_toArray(schedules)}}" as="init_obj")
         template(is="dom-repeat", items="{{_toArray(init_obj.value)}}" as="device")
           template(is="dom-repeat", items="{{_toArray(device.value)}}" as="endpoint")
@@ -32,13 +38,16 @@ dom-module(id="crouton-schedule")
       div
         paper-toolbar
           paper-input.grid__col--6-of-12(label="Enter plain language schedule", type="text", value="{{newSchedLanguage::input}}", required)
-          paper-tabs(id="sched_menu", selected="{{actionSelection}}" attr-for-selected="id", selectedindex="0", on-click="validateActionType", noInk)
+          paper-tabs.grid__col--4-of-12(id="sched_menu", selected="{{actionSelection}}" attr-for-selected="id", selectedindex="0", on-click="validateActionType", noInk)
             paper-tab(id="toggle") Toggle
             paper-tab(id="button") Button
             paper-tab(id="slide_to") Slide
             paper-tab(id="slide_above") Slide Above
             paper-tab(id="slide_below") Slide Below
           paper-input.grid__col--1-of-12(label="Enter value", type="text", value="{{newSchedValue::input}}", disabled="{{!newSchedValueEnabled}}", required)
+          div.addButtons.grid__col--1-of-12
+            paper-fab(icon="fa:refresh" on-tap="refreshSchedules" elevation="5").rightBtn
+            paper-fab(icon="fa:trash-o" on-tap="clearAllSchedules" elevation="5").rightBtn
         paper-toolbar
           paper-input.grid__col--4-of-12(label="Enter path", type="text", value="{{newSchedPath::input}}", required)
           paper-input.grid__col--3-of-12(label="Enter device name" type="text", value="{{newSchedDeviceName::input}}", required)
