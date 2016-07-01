@@ -10,8 +10,8 @@ link(rel="import", href="/static/common/bower/paper-icon-button/paper-icon-butto
 
 link(rel="import", href="/static/common/bower/paper-tabs/paper-tabs.html")
 
-link(rel="import", href="/app-render/framework/crouton-card/crouton-card.jade")
-link(rel="import", href="/app-render/framework/crouton-upload-card/crouton-upload-card.jade")
+link(rel="import", href="/app-render/framework/crouton-card/crouton-card.pug")
+link(rel="import", href="/app-render/framework/crouton-upload-card/crouton-upload-card.pug")
 
 link(rel="import", href="/static/common/bower/iron-form/iron-form.html")
 link(rel="import", href="/static/common/bower/iron-ajax/iron-ajax.html")
@@ -423,7 +423,7 @@ dom-module(id="crouton-upload")
             this.fire('makeToast', { message: "Uh on! <b>" + this.newUploadDeviceName + "</b> already exists as a device", duration: 4000, status: "exclamation-circle" });
           }
 
-          // connect-mqtt.jade catches success or fail messages and responds with toast notifactions
+          // connect-mqtt.pug catches success or fail messages and responds with toast notifactions
         },
         removeDevice: function(name){
           //console.log("in upload remove device with a name of..", name);
