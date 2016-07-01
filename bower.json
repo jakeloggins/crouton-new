@@ -61,11 +61,17 @@
     "paper-menu": "PolymerElements/paper-menu#~1.2.0",
     "paper-progress": "PolymerElements/paper-progress#^1.0.0",
     "paper-slider": "PolymerElements/paper-slider#~1.0.8",
-    "paper-toast": "PolymerElements/paper-toast#~1.0.0",
+    "paper-toast": "PolymerElements/paper-toast#^1.2.2",
     "paper-toggle-button": "PolymerElements/paper-toggle-button#~1.0.11",
     "paper-toolbar": "PolymerElements/paper-toolbar#^1.1.4",
     "paper-dialog": "PolymerElements/paper-dialog#^1.0.4",
     "paper-dialog-scrollable": "PolymerElements/paper-dialog-scrollable#^1.1.1",
-    "paper-tabs": "PolymerElements/paper-tabs#^1.3.7"
+    "paper-tabs": "PolymerElements/paper-tabs#^1.3.7",
+    "zero-md": "zerodevx/zero-md#^0.2.0"
+  },
+  "resolutions": {
+    "fizzy-ui-utils": "~2.0.0",
+    "outlayer": "~2.0.0",
+    "get-size": "~2.0.2"
   }
 }

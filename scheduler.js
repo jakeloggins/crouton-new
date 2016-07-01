@@ -1,11 +1,18 @@
 var jsonfile = require('jsonfile'),
 	later = require('later'),
 	util = require('util'), // not sure if I need this
-	fs = require('fs');
+	fs = require('fs'),
+	mqtt = require('mqtt');
 
-var mqtt = require('mqtt'),
-	mqtt_config = require('./public/common/mqtt_broker_config.json'),
-	client = mqtt.connect(mqtt_config);
+var mqtt_config = require('./public/common/mqtt_broker_config.json');
+mqtt_config.clientId = "scheduler";
+mqtt_config.will = {
+  "topic": "/schedule/error",
+  "payload": "scheduler disconnected",
+  "qos": 2
+};
+var client = mqtt.connect(mqtt_config);
+
 
 // where schedules are stored and accessed on reconnect
 var file = './public/common/schedule_data.json';
@@ -87,7 +94,7 @@ function onMSG(topic, payload) {
 				// delete device if no more endpoints
 				num_endpoints = Object.keys(active[device_name]).length;
 				if (num_endpoints == 0) {
-					delete active[device_name]
+					delete active[device_name];
 				}
 
 			} else {

@@ -1,0 +1,643 @@
+link(rel="import", href="/static/common/bower/polymer/polymer.html")
+link(rel="import", href="/static/common/bower/paper-input/paper-input.html")
+link(rel="import", href="/static/common/bower/paper-button/paper-button.html")
+
+link(rel="import", href="/static/common/bower/paper-item/paper-item.html")
+link(rel="import", href="/static/common/bower/paper-listbox/paper-listbox.html")
+link(rel="import", href="/static/common/bower/paper-dropdown-menu/paper-dropdown-menu.html")
+link(rel="import", href="/static/common/bower/paper-toolbar/paper-toolbar.html")
+link(rel="import", href="/static/common/bower/paper-icon-button/paper-icon-button.html")
+
+link(rel="import", href="/static/common/bower/paper-tabs/paper-tabs.html")
+
+link(rel="import", href="/app-render/framework/crouton-card/crouton-card.jade")
+link(rel="import", href="/app-render/framework/crouton-upload-card/crouton-upload-card.jade")
+
+link(rel="import", href="/static/common/bower/iron-form/iron-form.html")
+link(rel="import", href="/static/common/bower/iron-ajax/iron-ajax.html")
+
+
+link(rel="import", href="/static/common/bower/paper-fab/paper-fab.html")
+link(rel="import", href="/static/common/bower/iron-icons/iron-icons.html")
+link(rel="import", href="/static/common/bower/iron-icon/iron-icon.html")
+link(rel="import", href="/static/common/bower/fontawesome-iconset/fa-all.html")
+
+
+dom-module(id="crouton-upload")
+  template
+    iron-ajax(id="ajax_init_list", auto='true', url='../../../public/common/active_init_list.json', last-response='{{active_init_list}}')
+    iron-ajax(id="ajax_device_list_esp", auto='true', url='../../../public/common/active_device_list_esp.json', last-response='{{active_device_list_esp}}')
+    iron-ajax(id="ajax_sketch_list", auto='true', url='../../../public/common/get_sketches', last-response='{{sketch_list}}')
+    iron-ajax(id="ajax_active_devices", auto='true', url='../../../public/common/all_devices.json', last-response='{{active_devices}}')
+
+    link(rel="stylesheet", href="crouton-upload.css")
+    crouton-card(drop-shadow="false", bottom-bar="false").grid__col.grid__col--12-of-12
+      p.header
+        span Upload
+        template(is="dom-if", if="{{!devices.length}}")
+          span.subTitle no devices
+        template(is="dom-if", if="{{devices.length}}")
+          span.subTitle
+            span {{devices.length}}
+            span   device(s)
+      template(is="dom-repeat", items="{{devices}}")
+        crouton-upload-card(id="{{deviceId(item)}}", device-name="{{item}}")
+
+      div.dropDownDisplay
+        paper-toolbar
+          paper-dropdown-menu.grid__col--3-of-12(label="Select Available Device", horizontal-align="left", noink, no-animations, on-click="refreshAllAvail") 
+            paper-listbox.dropdown-content(selected="{{newUploadDevice}}" attr-for-selected="id", on-click="validateCardType")
+              // dom repeat from the init json list
+              // THIS IS THE DUMBEST CODE 
+              // maybe they'll come up with something better for iterating through objects here: https://github.com/Polymer/polymer/issues/1385
+
+              // dom if there are no active devices or no active_init_list
+              template(is="dom-if", if="{{listsAreEmpty}}")
+                paper-item(id="none") None Available
+              template(is="dom-if", if="{{!listsAreEmpty}}")
+                template(is="dom-repeat", items="{{_toArray(active_init_list)}}", as="k")
+                  template(is="dom-repeat", items="{{_toArray(k.value)}}" as="esp")
+                    paper-item(id="{{esp.name}}") CHIP ID: {{esp.name}} / 
+                      template(is="dom-repeat", items="{{_toArray(esp.value)}}")
+                        template(is="dom-if" if="{{_nameInclude(item.name)}}")
+                          | {{item.value}} / 
+                        template(is="dom-if" if="{{_isEspObj(item.name)}}")
+                          template(is="dom-repeat", items="{{_toArray(item.value)}}" as="espObj")
+                            template(is="dom-if" if="{{_nameInclude(espObj.name)}}")
+                              | {{espObj.value}} 
+                // dom repeat from active devices
+                template(is="dom-repeat", items="{{active_device_list_esp.0}}", as="currDevice")
+                  paper-item(id="{{currDevice}}") {{currDevice}}
+          paper-fab(id="blink" icon="fa:lightbulb-o" on-tap="blinkBoard" elevation="5" toggles).rightBtn
+
+          paper-dropdown-menu.grid__col--2-of-12(label="Select Sketch", horizontal-align="left", noink, no-animations)
+            // app.js reads the sketches folder and sends the array
+            paper-listbox.dropdown-content(selected="{{newUploadSketch}}" attr-for-selected="id", on-click="refreshSketches")
+              template(is="dom-repeat", items="{{sketch_list}}" as="sketch")
+                paper-item(id="{{sketch}}") {{sketch}}
+          
+          paper-dropdown-menu.grid__col--2-of-12(label="Select Dashboard Display Type", horizontal-align="left", noink, no-animations)
+            paper-listbox.dropdown-content(selected="{{cardMenuSelection}}" attr-for-selected="id", on-click="validateCardType")
+              paper-item(id="auto") Default
+              paper-item(id="crouton-simple-text") Text
+              paper-item(id="crouton-simple-input") Input
+              paper-item(id="crouton-simple-slider") Slider
+              paper-item(id="crouton-simple-button") Button
+              paper-item(id="crouton-line-chart") Line Chart
+              paper-item(id="crouton-rgb-slider") RGB Slider
+              paper-item(id="video") Video
+
+          paper-input.grid__col--2-of-12(label="Enter MQTT path", type="text", value="{{newPath::input}}", required)
+
+        paper-toolbar
+          paper-input.grid__col--3-of-12(label="Enter card title", type="text", value="{{newCardTitle::input}}", disabled="{{!newCardTitleEnabled}}")
+          paper-input.grid__col--2-of-12(label="{{UnitsOptional}}", type="text", value="{{newUnits::input}}", disabled="{{!newUnitsEnabled}}", always-float-label)
+          paper-input.grid__col--2-of-12(label="{{MinOptional}}", type="text", value="{{newUnitsMin::input}}", disabled="{{!newUnitsMinEnabled}}", always-float-label)
+          paper-input.grid__col--2-of-12(label="{{MaxOptional}}", type="text", value="{{newUnitsMax::input}}", disabled="{{!newUnitsMaxEnabled}}", always-float-label)
+        paper-toolbar
+          paper-input.grid__col--5-of-12(label="Enter device name", type="text", value="{{newUploadDeviceName::input}}", required)  
+          div.addButtons.grid__col--7-of-12
+            // -- on upload click - if active device is selected, give a pop up asking if user is sure
+            paper-button(type="submit", disabled$="{{validateNewDeviceInput(newPath,newCardTitle,cardMenuSelection,newUploadDeviceName,newUploadSketch,newUploadDevice)}}", on-click="startUpload", raised).rightBtn Upload
+
+
+  style(is='custom-style').
+    paper-toolbar{
+      --paper-toolbar-background: rgb(250,250,250);
+      --paper-toolbar-content: {
+        color: grey;
+      };
+    }
+    paper-tabs{
+      --paper-tabs-selection-bar-color: rgb(78,205,196);
+    }
+    paper-tab{
+      padding-left: 10px;
+      padding-right: 10px;
+      padding-top: 30px;
+      padding-bottom: 0px;
+      font-size: 16px;
+      --paper-tab-ink: rgb(78,205,196);
+    }
+    paper-input{
+      --paper-input-container-focus-color: grey;
+      padding: 20px;
+    }
+    paper-dropdown-menu{
+      padding: 20px;
+    }
+    paper-fab{
+      background-color: rgb(78,205,196);
+      height: 35px;
+      width: 35px;
+      padding: 20px;
+    }
+     paper-fab[active]{
+      background-color: rgb(240,128,128);
+      color: white;
+    }
+
+  script.
+    (function() {
+      Polymer({
+        is: "crouton-upload",
+        ready: function() {
+          var that = this;
+          this.devices = [];
+          this.deviceObj = {};
+          this.devicesCard = document.getElementById("crouton-devices");
+
+          this.listsAreEmpty = false;
+
+          this.cardMenuSelection = '';
+          this.newPath = '';
+          this.newCardTitle = '';
+          this.newCardKey = '';
+          this.newUploadDevice = '';
+          this.newUploadDeviceName = '';
+          this.newUploadDeviceNameKey = '';
+          this.newUploadSketch = '';
+
+          this.clearAllFalse();
+
+          this.deviceCardPrefix = "crouton-device-";
+
+          this.mqttCard = document.getElementById("crouton-mqtt");
+          this.mqttConnected = false;
+
+          document.getElementById("crouton-frame").addEventListener("mqttConnection", function(event){
+            that.mqttConnected = document.getElementById("crouton-mqtt").connected;
+          });
+
+        },
+        properties: {
+          active_init_list: Object,
+          active_device_list_esp: Array,
+          sketch_list: Array,
+          active_devices: Object,
+        },
+        listeners: {
+
+        },
+        clearAllFalse: function() {
+          this.newUnits = '';
+          this.newUnitsMin = '';
+          this.newUnitsMax = '';
+          this.newUnitsEnabled = false;
+          this.newUnitsMinEnabled = false;
+          this.newUnitsMaxEnabled = false;
+          this.newCardTitleEnabled = false;
+          this.UnitsOptional = '';
+          this.MinOptional = '';
+          this.MaxOptional = '';
+        },
+        attached: function(){
+          if (this.mqttCard.storageAvailable('localStorage')) {
+            var deviceList = localStorage.getItem("crouton-devicelist");
+            if(deviceList){
+              var deviceListJson = JSON.parse(deviceList);
+              for(var i = 0; i < deviceListJson.devices.length; i++){
+                this.addDevice(deviceListJson.devices[i]);
+              }
+            }
+          }
+        },
+        _nameInclude: function(name) {
+          if (name == "current_ip" || name == "board_type" || name == "real_size") {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        _isEspObj: function(name) {
+          if (name == "espInfo") {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        _camelize: function(str) {
+          return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
+            if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+            return index == 0 ? match.toLowerCase() : match.toUpperCase();
+          });
+        },
+        _toArray: function(obj) {
+            return Object.keys(obj).map(function(key) {
+                return {
+                    name: key,
+                    value: obj[key]
+                };
+            });
+        },
+        refreshSketches: function() {
+          this.$.ajax_sketch_list.generateRequest();
+          //console.log(this.sketch_list);
+        },
+        refreshAllAvail: function() {
+          this.$.ajax_device_list_esp.generateRequest();
+          this.$.ajax_init_list.generateRequest();
+
+          this.async(function(){
+            this.checkEmpty();
+            }, 100);
+
+        },
+        checkEmpty: function() {
+          list = Object.keys(this.active_init_list[0]);
+          if (this.active_device_list_esp[0].length == 0 && list.length == 0) {
+            this.listsAreEmpty = true;
+          }
+          else {
+            this.listsAreEmpty = false;
+          }
+        },
+        validateCardType: function(){
+          //- console.log("inside validateCardType..");
+          //- console.log(this.cardMenuSelection);
+          switch (this.cardMenuSelection) {
+            case 'auto':
+                this.clearAllFalse();
+                break;
+            case 'video':
+                this.clearAllFalse();
+                this.newCardTitleEnabled = true;
+                break;
+            case 'crouton-simple-text':
+                this.clearAllFalse();
+                
+                this.newCardTitleEnabled = true;
+                this.newUnitsEnabled = true;
+                this.newUnitsMinEnabled = false;
+                this.newUnitsMaxEnabled = false;
+
+                this.UnitsOptional = 'Enter units (optional)';
+                this.MinOptional = '';
+                this.MaxOptional = '';
+                break;
+            case 'crouton-simple-input':
+                this.clearAllFalse();
+                this.newCardTitleEnabled = true;
+                break;
+            case 'crouton-simple-slider':
+                this.clearAllFalse();
+                this.newCardTitleEnabled = true;
+
+                this.newUnitsEnabled = true;
+                this.newUnitsMinEnabled = true;
+                this.newUnitsMaxEnabled = true;
+
+                this.newUnitsMin = '0';
+                this.newUnitsMax = '100';
+
+                this.UnitsOptional = 'Enter units (optional)';
+                this.MinOptional = 'min value (default: 0)';
+                this.MaxOptional = 'max value (default: 100)';
+                break;
+            case 'crouton-simple-button':
+                this.clearAllFalse();
+                this.newCardTitleEnabled = true;
+
+                this.newUnitsEnabled = true;
+                this.newUnitsMinEnabled = false;
+                this.newUnitsMaxEnabled = false;
+
+                this.newUnits = 'bell';
+
+                this.UnitsOptional = 'Enter icon name (optional)';
+                this.MinOptional = '';
+                this.MaxOptional = '';
+                break;
+            case 'crouton-simple-toggle':
+                this.clearAllFalse();
+                this.newCardTitleEnabled = true;
+
+                this.newUnitsEnabled = false;
+                this.newUnitsMinEnabled = true;
+                this.newUnitsMaxEnabled = true;
+
+                this.newUnitsMin = 'OFF';
+                this.newUnitsMax = 'ON';
+
+                this.UnitsOptional = '';
+                this.MinOptional = 'default: "OFF"';
+                this.MaxOptional = 'default: "ON"';
+                break;
+            case 'crouton-line-chart':
+                this.clearAllFalse();
+                this.newCardTitleEnabled = true;
+
+                this.newUnitsEnabled = false;
+                this.newUnitsMinEnabled = true;
+                this.newUnitsMaxEnabled = true;
+
+                this.newUnitsMin = '0';
+                this.newUnitsMax = '100';
+
+                this.UnitsOptional = '';
+                this.MinOptional = 'min y-axis label (default: 0)';
+                this.MaxOptional = 'max y-axis label (default: 100)';
+                break;
+            case 'crouton-rgb-slider':
+                this.clearAllFalse();
+                this.newCardTitleEnabled = true;
+
+                this.newUnitsEnabled = false;
+                this.newUnitsMinEnabled = true;
+                this.newUnitsMaxEnabled = true;
+
+                this.newUnitsMin = '0';
+                this.newUnitsMax = '255';
+
+                this.UnitsOptional = '';
+                this.MinOptional = 'min value (default: 0)';
+                this.MaxOptional = 'max value (default: 255)';
+                break;
+          }
+        },
+        validateNewDeviceInput: function(newPath,newCardTitle,cardMenuSelection,newUploadDeviceName,newUploadSketch, newUploadDevice){
+
+          // stay disabled if none available is selected
+          if (newUploadDevice == 'none') {
+            return true // stay disabled
+          }
+
+          //making sure there is a name not just white spaces... also need to filter special characteres later too .. true means add device button is disabled
+          // card menu is auto, so don't check card title
+          if (cardMenuSelection == 'auto') {
+
+            if((newPath && cardMenuSelection && newUploadSketch && newUploadDeviceName === null) || (newUploadDeviceName.match(/^ *$/) || newUploadSketch.match(/^ *$/) || newPath.match(/^ *$|confirm|control|log|errors|clear|clearall|schedule|global/) || cardMenuSelection.match(/^ *$/) !== null)) {
+              return true // stay disabled  
+            } else {
+                return false // enable 
+            }
+            
+          } else {
+            // card menu is custom, so make sure card title is valid
+            if((newPath && newCardTitle && cardMenuSelection && newUploadSketch && newUploadDeviceName === null) || (newCardTitle.match(/^ *$/) || newUploadDeviceName.match(/^ *$/) || newUploadSketch.match(/^ *$/) || newPath.match(/^ *$|confirm|control|log|errors|clear|clearall|schedule|global/) || cardMenuSelection.match(/^ *$/) !== null)){
+              return true // stay disabled  
+            } else {
+                return false // enable 
+            }
+          }
+
+        },
+        deviceId: function(name){
+          return this.deviceCardPrefix + name;
+        },
+        deviceValuePointer: function(name){
+          this.values[name] = {};
+          return this.values[name];
+        },
+        startUpload: function(){
+          var that = this;
+
+          this.removeDevice(this.newUploadDevice);
+
+          // grab assembledJson
+          assembledJson = this.buildJson();
+
+          // make sure name is unique
+          if(this.devices.indexOf(this.newUploadDeviceNameKey) === -1){
+
+            // clear old form data
+            this.cardMenuSelection = '';
+            this.newPath = '';
+            this.newCardTitle = '';
+            this.newCardKey = '';
+            this.newUploadDevice = '';
+            this.newUploadDeviceName = '';
+            this.newUploadDeviceNameKey = '';
+            this.newUploadSketch = '';
+            this.clearAllFalse();
+
+            // send upload control message
+            uploader_path = "/uploader/control/";
+            uploader_path += assembledJson.deviceInfo.device_name_key;
+            this.mqttCard.publishMessage(uploader_path, assembledJson);
+
+            // fire toast that upload is starting
+            this.fire('makeToast', { message: "Device <b>" + this.newUploadDeviceName + "</b> is uploading. Please wait, it could take up to 2 minutes ...", duration: 0, status: "check-circle" });
+            
+          } else {
+            this.fire('makeToast', { message: "Uh on! <b>" + this.newUploadDeviceName + "</b> already exists as a device", duration: 4000, status: "exclamation-circle" });
+          }
+
+          // connect-mqtt.jade catches success or fail messages and responds with toast notifactions
+        },
+        removeDevice: function(name){
+          //console.log("in upload remove device with a name of..", name);
+          if (document.getElementById(this.deviceCardPrefix + name)) {
+            document.getElementById(this.deviceCardPrefix + name).removeDevice(true);
+          }
+        },
+        connectDevice: function(name,assembledJson){
+          //- console.log("devices connectDevice ..");
+          //- console.log(assembledJson);
+          //- console.log(JSON.stringify(assembledJson));
+          document.getElementById(this.deviceCardPrefix + name).connectDevice(assembledJson);
+
+          // clear form
+          this.cardMenuSelection = '';
+          this.newPath = '';
+          this.newCardTitle = '';
+          this.newCardKey = '';
+          this.newUploadDevice = '';
+          this.newUploadDeviceName = '';
+          this.newUploadDeviceNameKey = '';
+          this.newUploadSketch = '';
+          this.clearAllFalse();
+        },
+        disconnectAllDevices: function(){
+          for(var device in this.devices){
+            if(typeof(this.devices[device]) == "string"){
+              document.getElementById(this.deviceCardPrefix + name).disconnectDevice();
+            }
+          }
+        },
+        blinkBoard: function(aria) {
+          blink_status = document.getElementById("blink").getAttribute("aria-pressed");
+          if (blink_status == "true") {
+            blink_msg = "blink on";
+          }
+          else {
+            blink_msg = "blink off";
+          } 
+          if (this.newUploadDevice) {
+            blink_path = "/deviceInfo/control/" + this.newUploadDevice;
+            this.mqttCard.publishMessage(blink_path, blink_msg);
+          }
+        },
+        buildJson: function() {
+          // -- note: color appears to do nothing, should show up in cardBorder from crouton-card.css
+
+          // grab active_devices for later
+          this.$.ajax_active_devices.generateRequest();
+          //console.log(this.active_devices);
+
+          // make sure newPath has beginning slash and no end slash
+          if(this.newPath.charAt(0) != "/" && this.newPath != "") {
+            slash = "/";
+            this.newPath = slash.concat(this.newPath);
+          }
+          if(this.newPath.slice(-1) == "/") {
+            this.newPath = this.newPath.slice(0, -1);
+          }
+
+          // make sure new device name is converted to camel case
+          this.newUploadDeviceNameKey = this._camelize(this.newUploadDeviceName);
+          this.newCardKey = this._camelize(this.newCardTitle);
+
+          // begin device object
+          this.deviceObj = {};
+
+          // strip out the [] from active_init_list
+          slim_active_init_list = this.active_init_list[0];
+
+          // need to know whether newUploadDevice comes from active_init or active_device_list_esp so we can get espInfo object
+            // search through the init_list
+            is_from_init_list = false;
+            for (key in slim_active_init_list) {
+              if (key == this.newUploadDevice) {
+                // key match, grab espInfo
+                this.deviceObj.deviceInfo = {};
+                this.deviceObj.deviceInfo = slim_active_init_list[key];
+                // set flag
+                is_from_init_list = true;
+              }  
+            }
+            if (!is_from_init_list) {
+              for (key in this.active_devices) {
+                if (key == this.newUploadDevice) {
+                  // grab from active devices
+                  this.deviceObj = this.active_devices[key];
+                  // if this.active_devices[key][deviceInfo] does not have own property of [espInfo], add it here
+                  if (!this.active_devices[key]["deviceInfo"].hasOwnProperty('espInfo')) {
+                    this.active_devices[key]["deviceInfo"]["espInfo"] = {};
+                  }
+                  // clear the old endPoints out b/c we will replace them with user input or defaults from sketch folder
+                  this.deviceObj.deviceInfo.endPoints = {};
+                }
+              }
+            }
+
+            // add upload_sketch to espInfo
+            this.deviceObj.deviceInfo.espInfo.upload_sketch = this.newUploadSketch;
+
+            // add device_name
+            this.deviceObj.deviceInfo.device_name = this.newUploadDeviceName;
+            // add device_name_key
+            this.deviceObj.deviceInfo.device_name_key = this.newUploadDeviceNameKey;
+            // add status
+            this.deviceObj.deviceInfo.device_status = "good"; // - this is meaningless right now
+            // and path
+            this.deviceObj.deviceInfo.path = this.newPath;
+            
+
+
+          // add the endpoint object
+          this.deviceObj.deviceInfo.card_display_choice = "custom"; // -- this will be overridden if cardMenuSelection is default
+          this.deviceObj.deviceInfo.endPoints = {}; // -- this will be deleted if cardMenuSelection is default
+
+          switch (this.cardMenuSelection) {
+            case 'crouton-simple-text':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "units": this.newUnits,
+                  "values": {
+                    "value": 0
+                  },
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+
+            case 'crouton-simple-input':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "values": {
+                    "value": "default message"
+                  },
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+
+            case 'crouton-simple-slider':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "units": this.newUnits,
+                  "values": {
+                    "value": 0
+                  },
+                  "min": parseInt(this.newUnitsMin),
+                  "max": parseInt(this.newUnitsMax),
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+
+            case 'crouton-simple-button':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "values": {
+                    "value": true
+                  },
+                  "icons": {
+                    "icon": this.newUnits
+                  },
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+            
+            case 'crouton-simple-toggle':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "values": {
+                    "value": false
+                  },
+                  "labels": {
+                    "true": this.newUnitsMax,
+                    "false": this.newUnitsMin
+                  },
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+            
+            case 'crouton-line-chart':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "values": {
+                      "labels": [1],
+                      "series": [[60]],
+                      "update": ""
+                  },
+                  "max": parseInt(this.newUnitsMax),
+                  "low": parseInt(this.newUnitsMin),
+                  "high": parseInt(this.newUnitsMax),
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+            
+            case 'crouton-rgb-slider':
+                this.deviceObj.deviceInfo.endPoints[this.newCardKey] = {
+                  "values": {
+                    "red": 0,
+                    "green": 0,
+                    "blue": 0
+                  },
+                  "min": parseInt(this.newUnitsMin),
+                  "max": parseInt(this.newUnitsMax),
+                  "card-type": this.cardMenuSelection,
+                  "title": this.newCardTitle
+                };
+                break;
+            default:
+              this.deviceObj.deviceInfo.card_display_choice = "default";
+              delete this.deviceObj.deviceInfo.endPoints;
+          };
+
+          return this.deviceObj;
+        },
+        addDemo: function(){
+          this.addDevice("crouton-demo");
+        }
+      });
+    }());

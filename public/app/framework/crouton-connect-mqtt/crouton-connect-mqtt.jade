@@ -20,7 +20,7 @@ dom-module(id="crouton-connect-mqtt")
         div.grid__col.grid__col--9-of-12
           paper-input(label="Broker Address", type="text", value="{{address::input}}", disabled$="{{disableInput(connected)}}", required)
         div.grid__col.grid__col--3-of-12
-          paper-input(label="Port", type="text", pattern="^[0-9]{1,4}$", value="{{port::input}}", disabled$="{{disableInput(connected)}}", auto-validate, required)
+          paper-input(label="Port", type="text", pattern="^[0-9]{1,6}$", value="{{port::input}}", disabled$="{{disableInput(connected)}}", auto-validate, required)
         div.grid__col.grid__col--12-of-12
           paper-input(label="Crouton Name", type="text", value="{{clientName::input}}", disabled$="{{disableInput(connected)}}", required)
         div.grid__col.grid__col--6-of-12
@@ -34,6 +34,7 @@ dom-module(id="crouton-connect-mqtt")
           span.mqttSettingCheckboxes
             paper-checkbox(checked="{{autoConnect}}").topMargin Auto-connect
             paper-checkbox(checked="{{saveUsernamePassword}}") Save username/password (warning: in plaintext)
+            paper-checkbox(checked="{{wssProtocol}}") Secure Websockets (TLS)
         div.grid__col.grid__col--3-of-12
           paper-button(type="submit", disabled$="{{validateInput(address,port,clientName,connecting)}}", on-click="toggleConnection", raised).rightBtn {{displayButtonText(connected,connecting)}}
 
@@ -71,6 +72,10 @@ dom-module(id="crouton-connect-mqtt")
           connecting: {
             type: Boolean,
             value: false
+          },
+          protocol: {
+            type: String,
+            value: ""
           }
         },
         listeners: {
@@ -93,6 +98,7 @@ dom-module(id="crouton-connect-mqtt")
             this.saveUsernamePassword = settings.saveUsernamePassword;
             this.username = settings.username;
             this.password = settings.password;
+
 
             if(this.autoConnect){
               this.connectBroker();
@@ -147,9 +153,14 @@ dom-module(id="crouton-connect-mqtt")
         connectBroker: function(){
           var that = this;
           this.croutonDashboard = document.getElementById("crouton-dashboard");
+          if(this.wssProtocol == true){
+            this.protocol = "ws";
+          }
 
           this.connecting = true;
-          this.client = mqtt.connect({ port: this.port, host: this.address, path: "/mqtt", keepalive: 10000, clientId: this.clientName, reconnectPeriod: 0, username: this.username || "", password: this.password || ""});
+          // old version 
+          // this.client = mqtt.connect({ port: this.port, host: this.address, path: "/mqtt", keepalive: 10000, clientId: this.clientName, reconnectPeriod: 0, username: this.username || "", password: this.password || ""});
+          this.client = mqtt.connect({protocol: this.protocol, port: this.port, host: this.address, path: "/mqtt", keepalive: 10000, clientId: this.clientName, reconnectPeriod: 0, username: this.username || "", password: this.password || ""});
           this.async(this.noConnection, 3000);
 
           //on connect
@@ -158,6 +169,8 @@ dom-module(id="crouton-connect-mqtt")
             that.connected = true;
             that.fire('makeToast', { message: "Connected to MQTT broker", duration: 3000, status: "check-circle" });
             that.fire('mqttConnection', { connected: that.connected, connecting: that.connecting });
+            that.subscribeAddress("/uploader/confirm/#");
+            that.subscribeAddress("/deviceInfo/#");
           });
           //on disconnect
           this.client.on('close', function(){
@@ -169,25 +182,35 @@ dom-module(id="crouton-connect-mqtt")
           });
           //on message
           this.client.on('message', function (topic, message) {
+            //console.log(topic);
+            //console.log(message);
+
             has_device_info = false;
+            from_uploader = false;
             // new method
             command = topic.toString().match(/confirm|control|log|errors/);
             parse_command = topic.toString().split(/confirm|control|log|errors/);
             before_command = parse_command[0].toString().split("/").filter(Boolean);
             after_command = parse_command[1].toString().split("/").filter(Boolean);
 
-
             if (before_command[0] != "global") {
                 if (before_command[0] == "deviceInfo") {
                   has_device_info = true;
-                  name = before_command[1];
-                } else {
+                  name = after_command[0];
+                } 
+                else if (before_command[0] == "uploader") {
+                  from_uploader = true;
+                  name = after_command[0];
+                }
+                else {
                     name = after_command[0];
                     address = after_command[1];
                 }
             }
 
             messageString = message.toString();
+
+
             //- console.log(topic);
             //- console.log(messageString);
             //- console.log("command..");
@@ -209,7 +232,13 @@ dom-module(id="crouton-connect-mqtt")
 
             //Waiting for device info to check if device is online
             if(command == "confirm" && has_device_info == true){
-              console.log("confirm and has device info");
+              //console.log("confirm and has device info");
+
+              //console.log("message string...", messageString);
+              messageObj = JSON.parse(messageString);
+              //console.log("message obj..", messageObj);
+
+              //console.log("name..", name, "auto connect...", that.checkAutoConnect[name], "check status", that.checkStatusAsync[name]);
               if(that.checkAutoConnect[name] || that.checkStatusAsync[name]){
                 if(that.checkStatusAsync[name]){
                   that.cancelAsync(that.checkStatusAsync[name]);//cancel timeout
@@ -219,8 +248,8 @@ dom-module(id="crouton-connect-mqtt")
                   delete that.checkAutoConnect[name];
                 }
                 //that.unsubscribeAddress("/outbox/"+name+"/deviceInfo");
-                that.unsubscribeAddress("/deviceInfo/"+name+"/confirm")
-                messageObj = JSON.parse(messageString);
+                //that.unsubscribeAddress("/deviceInfo/"+name+"/confirm")
+
                 var deviceCard = document.getElementById(that.deviceCardPrefix + name);
                 deviceCard.connectionStatus = "connected";//chance connection status
                 deviceCard.deviceJson = messageObj.deviceInfo;//return device json to device card
@@ -234,21 +263,46 @@ dom-module(id="crouton-connect-mqtt")
               return;
             }
 
+            // from uploader
+            else if (command == "confirm" && from_uploader == true) {
+              try {
+                messageObj = JSON.parse(messageString);
+
+                if (messageObj.result == "success") {
+                  // make toast using name variable and keept for 5 second
+                  //that.fire('makeToast', { message: "Success! <b>" + name + "</b> has uploaded and is available in the device section.", duration: 0, status: "check-circle" });
+                  // get the active devices, find the espInfo and upload_sketch, display instructions.md
+                  that.fire('makeDialog', { message: "Device <b>" + messageObj.device_name + "</b> has uploaded successfully and is now in the available devices list.", upload_sketch: messageObj.upload_sketch});
+                }
+              } 
+              catch(error) {
+                if (messageString.match(/retry/)) {
+                  that.fire('makeToast', { message: "Welp, uploading <b>" + messageObj.device_name + "</b> didn't quite work. Now on " + message + ".", duration: 0, status: "exclamation-circle" });
+                }
+                else if (messageString == "failed") {
+                  that.fire('makeToast', { message: "Sorry <b>" + messageObj.device_name + "</b> failed to upload.", duration: 5000, status: "exclamation-circle" }); 
+                }
+                
+              }
+
+            }
+
             //lwt - device has disconnected
-            if(command == "errors"){
+            else if(command == "errors"){
+              //console.log(name, "has disconnected");
               var deviceCard = document.getElementById(that.deviceCardPrefix + name);
               deviceCard.forcedDisconnect(messageString);
               return;
             }
 
             //If we are getting a message
-            if(command == "confirm"){
+            else if(command == "confirm"){
               try{
                 var messageObj = JSON.parse(messageString);
                 that.croutonDashboard.updateValue(name,address,messageObj);
                 return;
               } catch(error){
-                console.log("Incoming message not JSON? From device: " + name + " at " + address);
+                //console.log("Incoming message not JSON? From device: " + name + " at " + address);
               }
             }
           });
@@ -280,17 +334,17 @@ dom-module(id="crouton-connect-mqtt")
         connectDevice: function(name,object,assembledJson){
 
           // new path routing
-          this.subscribeAddress("/deviceInfo/"+name+"/confirm");
+          //this.subscribeAddress("/deviceInfo/"+name+"/confirm");
 
           if (assembledJson == false || assembledJson === undefined) {
             // if assembledJson is false or undefined, get JSON from device
-            this.client.publish("/deviceInfo/"+name+"/control", "get", 2);
+            this.client.publish("/deviceInfo/control/"+name, "get", 2);
           } else {
-            // otherwise, send JSON to /deviceInfo/name/control
-            console.log("connect-mqtt connectDevice...")
-            console.log(assembledJson);
-            console.log(JSON.stringify(assembledJson));
-            this.client.publish("/deviceInfo/"+name+"/control", JSON.stringify(assembledJson), 2);
+            // otherwise, send JSON to /deviceInfo/control/name
+            //console.log("connect-mqtt connectDevice...")
+            //console.log(assembledJson);
+            //console.log(JSON.stringify(assembledJson));
+            this.client.publish("/deviceInfo/control"+name, JSON.stringify(assembledJson), 2);
           }
           this.checkStatusAsync[name] = this.async(function(){
             object.connectionStatus = "not connected";
@@ -319,6 +373,7 @@ dom-module(id="crouton-connect-mqtt")
             mqttSettings.clientName = this.clientName;
             mqttSettings.autoConnect = this.autoConnect;
             mqttSettings.saveUsernamePassword = this.saveUsernamePassword;
+            mqttSettings.wssProtocol = this.wssProtocol;
 
             if(this.saveUsernamePassword){
               mqttSettings.username = this.username;

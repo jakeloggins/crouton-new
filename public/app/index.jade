@@ -39,3 +39,15 @@ html(lang="en")
           window.fireEvent(event.eventType, event);
         }
       }
+      function goToGuide(upload_sketch){
+        console.log("in index");
+        console.log(upload_sketch);
+        dialog = document.getElementById("success");
+        sketch_string = "/guide/" + upload_sketch;
+        window.open(sketch_string, '_blank');
+        dialog.remove();
+      }
+      function closeDialog(){
+        dialog = document.getElementById("success");
+        dialog.remove();
+      }

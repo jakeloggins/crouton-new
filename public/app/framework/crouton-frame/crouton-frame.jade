@@ -6,7 +6,14 @@ link(rel="import", href="/app-render/framework/crouton-dashboard/crouton-dashboa
 link(rel="import", href="/app-render/framework/crouton-navigation/crouton-navigation.jade")
 link(rel="import", href="/app-render/framework/crouton-getting-started/crouton-getting-started.jade")
 link(rel="import", href="/app-render/framework/crouton-schedule/crouton-schedule.jade")
+link(rel="import", href="/app-render/framework/crouton-upload/crouton-upload.jade")
 
+link(rel="import", href="/static/common/bower/paper-toast/paper-toast.html")
+link(rel="import", href="/static/common/bower/paper-button/paper-button.html")
+
+// success hookup instructions display
+link(rel="import", href="/static/common/bower/paper-dialog/paper-dialog.html")
+link(rel="import", href="/static/common/bower/paper-dialog-scrollable/paper-dialog-scrollable.html")
 
 
 dom-module(id="crouton-frame")
@@ -35,6 +42,7 @@ dom-module(id="crouton-frame")
             crouton-card(drop-shadow="false", bottom-bar="false").danger.grid__col.grid__col--12-of-12 Please connect to MQTT Broker below
           template(is="dom-if", if="{{mqttConnected}}")
             crouton-devices#crouton-devices
+            crouton-upload#crouton-upload
           crouton-connect-mqtt#crouton-mqtt(address="test.mosquitto.org", port="8080", client-name="{{randomClientName}}")
 
         // SCHEDULE
@@ -61,11 +69,14 @@ dom-module(id="crouton-frame")
           this.toastContainer = document.getElementById("toasts");
           addEventListener('makeToast', function(event){
             var params = event.detail;
-            if(!params.duration){
+            console.log("duration", params.duration);
+            if (typeof params.duration === "undefined") {
               params.duration = 2000;
             }
+            console.log("params..", params);
             var toast = document.createElement("paper-toast");
             toast.setAttribute("duration", params.duration);
+            //toast.setAttribute("duration", "Infinity")
             toast.setAttribute("class", "customToast");
             if(params.color){
               toast.style.color = params.color;
@@ -78,10 +89,32 @@ dom-module(id="crouton-frame")
             that.async(function(){
               toast.show();
             }, 100);
-            that.async(function(){
-              toast.remove();
-            }, params.duration + 600);
+            if (parseInt(params.duration) > 0) {
+              console.log("duration is > 0");
+              that.async(function(){
+                toast.remove();
+              }, params.duration + 600);
+            }
           });
+
+          addEventListener('makeDialog', function(event){
+            var params = event.detail;
+            
+            var dialog = document.createElement("paper-toast");
+            dialog.setAttribute("class", "customToast");
+            dialog.setAttribute("duration", 0);
+            dialog.setAttribute("id", "success");
+            var inner = "<div>" + params.message + "<paper-button autofocus onclick=\"goToGuide('" + params.upload_sketch + "')\">View Guide</paper-button><paper-button autofocus onclick=\"closeDialog()\">Close</paper-button></div>";
+            dialog.innerHTML = inner;
+            that.toastContainer.appendChild(dialog);
+
+            that.async(function(){
+              dialog.show();
+            }, 100);
+
+
+          });
+
 
           this.mqttConnected = false;
           document.getElementById("crouton-frame").addEventListener("mqttConnection", function(event){

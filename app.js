@@ -1,7 +1,8 @@
 var express = require('express');
   readdirp = require('readdirp'),
   jsonfile = require('jsonfile'),
-  later = require('later');
+  later = require('later'),
+  fs = require('fs');
 
 var app = express();
 app.set('views', __dirname + '/public/app');
@@ -52,13 +53,37 @@ app.get(['/','/crouton','/crouton/*'], function (req, res) {
   returnObj.frameworkFiles = frameworkFiles;
   res.render('index',returnObj);
 });
-// schedule JSON file -- need to send JSON response for iron ajax
+// schedule JSON file
 app.get('/public/common/schedule_data.json',function(req,res){
     json_data = jsonfile.readFileSync('./public/common/schedule_data.json');
-    //json_data = require('./public/common/schedule_data.json');
-    //console.log(json_data);
     res.json([json_data]);
-    //res.sendFile(__dirname + '/public/common/schedule_data.json');  
+});
+// active device list
+app.get('/public/common/active_device_list.json',function(req,res){
+    json_data = jsonfile.readFileSync('./public/common/active_device_list.json');
+    res.json([json_data]);
+});
+// active device esp list
+app.get('/public/common/active_device_list_esp.json',function(req,res){
+    json_data = jsonfile.readFileSync('./public/common/active_device_list_esp.json');
+    res.json([json_data]);
+});
+// active init list
+app.get('/public/common/active_init_list.json',function(req,res){
+    json_data = jsonfile.readFileSync('./public/common/active_init_list.json');
+    res.json([json_data]); 
+});
+// active devices object
+app.get('/public/common/all_devices.json',function(req,res){
+    json_data = jsonfile.readFileSync('./public/common/all_devices.json');
+    res.json(json_data); 
+});
+// return available sketches list
+app.get('/public/common/get_sketches',function(req,res){
+    // read files
+    json_data = fs.readdirSync('./sketches');
+    // return array
+    res.json(json_data);
 });
 //intercept templating for css files in framework
 app.get('/app-render/framework/**/*.css', function (req, res) {
@@ -87,6 +112,15 @@ app.get('/app-render/documentation/*.md', function (req, res) {
 app.get(['/documentation'], function (req, res) {
   res.render('documentation/documentation.jade');
 });
+
+//hook up instructions guide
+app.get(['/guide/**'], function (req, res) {
+  res.render('documentation/guide.jade', { upload_sketch: req.params[0] });
+});
+app.get('/app-render/sketches/**/guide.md', function (req, res) {
+  res.sendFile(__dirname + "/sketches/"+req.params[0]+"/guide.md");
+});
+
 //404
 app.use(function(req, res, next) {
   res.redirect('/crouton/404');

@@ -104,7 +104,6 @@ dom-module(id="crouton-rgb-slider")
           var newValue = {};
           newValue[event.target.id] = this.localValue;
           this.mqtt.publishMessage(this.devicePath+"/control/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
-          //this.mqtt.publishMessage("/inbox/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
         }
       });
     }());
