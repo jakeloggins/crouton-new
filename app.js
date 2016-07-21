@@ -112,7 +112,7 @@ app.get('/app-render/sketches/**/guide.md', function (req, res) {
 
 
 //intercept templating for css files in framework
-app.get('/app-Z/framework/**/*.css', function (req, res) {
+app.get('/app-render/framework/**/*.css', function (req, res) {
   res.sendFile(__dirname + "/public/app/framework/"+req.params[0]+"/"+req.params[2]+".css");
 });
 app.get('/app-render/dashboard-elements/**/*.css', function (req, res) {

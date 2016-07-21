@@ -18,7 +18,7 @@
     "tests"
   ],
   "dependencies": {
-    "Materialize": "materialize#~0.97.1",
+    "Materialize": "materialize#0.97.1",
     "chartist": "~0.9.5",
     "classie": "~1.0.1",
     "desandro-matches-selector": "~2.0.0",
@@ -26,9 +26,9 @@
     "draggabilly": "~1.2.4",
     "ev-emitter": "~1.0.0",
     "fizzy-ui-utils": "~2.0.0",
-    "font-awesome": "~4.4.0",
+    "font-awesome": "*",
     "font-roboto": "PolymerElements/font-roboto#^1.0.1",
-    "fontawesome-iconset": "diego-d5000/fontawesome-iconset#~4.3.0",
+    "fontawesome-iconset": "edfungus/fontawesome-iconset",
     "gridster": "^0.5.6",
     "iron-a11y-announcer": "polymerelements/iron-a11y-announcer#^1.0.0",
     "iron-a11y-keys-behavior": "polymerelements/iron-a11y-keys-behavior#^1.0.0",
@@ -72,6 +72,21 @@
   "resolutions": {
     "fizzy-ui-utils": "~2.0.0",
     "outlayer": "~2.0.0",
-    "get-size": "~2.0.2"
+    "get-size": "~2.0.2",
+    "polymer": "master",
+    "font-roboto": "master",
+    "paper-item": "^1.2.1",
+    "paper-fab": "^1.2.0",
+    "paper-checkbox": "^1.3.0",
+    "paper-toggle-button": "^1.1.2",
+    "webcomponentsjs": "0.7.22",
+    "paper-ripple": "^1.0.0",
+    "paper-card": "~1.0.6",
+    "paper-header-panel": "^1.1.6",
+    "core-icon": "^0.5",
+    "core-iconset-svg": "0.5.6",
+    "core-iconset": "^0.5",
+    "core-icons": "^0.5",
+    "core-meta": "^0.5"
   }
 }
