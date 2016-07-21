@@ -1,3 +1,5 @@
+#!/usr/local/bin/node
+
 var express = require('express');
   readdirp = require('readdirp'),
   jsonfile = require('jsonfile'),
@@ -53,40 +55,64 @@ app.get(['/','/crouton','/crouton/*'], function (req, res) {
   returnObj.frameworkFiles = frameworkFiles;
   res.render('index',returnObj);
 });
+
+
+// new modular Clod path: [user home directory]/Clod-scripts
+
+
 // schedule JSON file
 app.get('/public/common/schedule_data.json',function(req,res){
-    json_data = jsonfile.readFileSync('./public/common/schedule_data.json');
+    //json_data = jsonfile.readFileSync('./public/common/schedule_data.json');
+    json_date = jsonfile.readFileSync('../Clod-scripts/schedule_data.json');
     res.json([json_data]);
 });
 // active device list
 app.get('/public/common/active_device_list.json',function(req,res){
-    json_data = jsonfile.readFileSync('./public/common/active_device_list.json');
+    //json_data = jsonfile.readFileSync('./public/common/active_device_list.json');
+    json_data = jsonfile.readFileSync('../Clod-scripts/active_device_list.json');
     res.json([json_data]);
 });
 // active device esp list
 app.get('/public/common/active_device_list_esp.json',function(req,res){
-    json_data = jsonfile.readFileSync('./public/common/active_device_list_esp.json');
+    //json_data = jsonfile.readFileSync('./public/common/active_device_list_esp.json');
+    json_data = jsonfile.readFileSync('../Clod-scripts/active_device_list_esp.json');
     res.json([json_data]);
 });
 // active init list
 app.get('/public/common/active_init_list.json',function(req,res){
-    json_data = jsonfile.readFileSync('./public/common/active_init_list.json');
+    //json_data = jsonfile.readFileSync('./public/common/active_init_list.json');
+    json_data = jsonfile.readFileSync('../Clod-scripts/active_init_list.json');
     res.json([json_data]); 
 });
 // active devices object
 app.get('/public/common/all_devices.json',function(req,res){
-    json_data = jsonfile.readFileSync('./public/common/all_devices.json');
+    //json_data = jsonfile.readFileSync('./public/common/all_devices.json');
+    json_data = jsonfile.readFileSync('../Clod-scripts/all_devices.json');
     res.json(json_data); 
 });
 // return available sketches list
 app.get('/public/common/get_sketches',function(req,res){
     // read files
-    json_data = fs.readdirSync('./sketches');
+    json_data = fs.readdirSync('../Clod-sketch-library/sketches');
     // return array
     res.json(json_data);
 });
+
+// new modular Clod path: [user home directory]/Clod-sketch-library/sketches
+
+//hook up instructions guide
+app.get(['/guide/**'], function (req, res) {
+  res.render('documentation/guide.pug', { upload_sketch: req.params[0] });
+});
+app.get('/app-render/sketches/**/guide.md', function (req, res) {
+  //res.sendFile(__dirname + "/sketches/"+req.params[0]+"/guide.md");
+  res.sendFile("../Clod-sketch-library/sketches/"+req.params[0]+"/guide.md");
+});
+
+
+
 //intercept templating for css files in framework
-app.get('/app-render/framework/**/*.css', function (req, res) {
+app.get('/app-Z/framework/**/*.css', function (req, res) {
   res.sendFile(__dirname + "/public/app/framework/"+req.params[0]+"/"+req.params[2]+".css");
 });
 app.get('/app-render/dashboard-elements/**/*.css', function (req, res) {
@@ -113,13 +139,6 @@ app.get(['/documentation'], function (req, res) {
   res.render('documentation/documentation.pug');
 });
 
-//hook up instructions guide
-app.get(['/guide/**'], function (req, res) {
-  res.render('documentation/guide.pug', { upload_sketch: req.params[0] });
-});
-app.get('/app-render/sketches/**/guide.md', function (req, res) {
-  res.sendFile(__dirname + "/sketches/"+req.params[0]+"/guide.md");
-});
 
 //404
 app.use(function(req, res, next) {

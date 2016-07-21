@@ -344,7 +344,7 @@ dom-module(id="crouton-connect-mqtt")
             //console.log("connect-mqtt connectDevice...")
             //console.log(assembledJson);
             //console.log(JSON.stringify(assembledJson));
-            this.client.publish("/deviceInfo/control"+name, JSON.stringify(assembledJson), 2);
+            this.client.publish("/deviceInfo/control/"+name, JSON.stringify(assembledJson), 2);
           }
           this.checkStatusAsync[name] = this.async(function(){
             object.connectionStatus = "not connected";
