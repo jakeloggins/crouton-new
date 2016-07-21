@@ -63,7 +63,7 @@ app.get(['/','/crouton','/crouton/*'], function (req, res) {
 // schedule JSON file
 app.get('/public/common/schedule_data.json',function(req,res){
     //json_data = jsonfile.readFileSync('./public/common/schedule_data.json');
-    json_date = jsonfile.readFileSync('../Clod-scripts/schedule_data.json');
+    json_data = jsonfile.readFileSync('../Clod-scripts/schedule_data.json');
     res.json([json_data]);
 });
 // active device list
