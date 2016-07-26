@@ -1,4 +1,3 @@
-#!/usr/bin/node
 
 var express = require('express');
   readdirp = require('readdirp'),
