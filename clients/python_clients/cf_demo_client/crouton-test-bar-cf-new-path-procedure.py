@@ -96,25 +96,28 @@ def on_message(client, userdata, msg):
                         for item, value in newJson.iteritems():
                             updateValue(key,item,value)
 
-
-
     
     ### Device Setup Commands
     elif (before_command[0] == "deviceInfo") & (command == "control"):
+        
+        ## -- if no states, use what is stored as default within the code, and send that back on confirm
         # answer a get request by sending the device JSON
-        if str(msg.payload) == "get":
+
+        if str(msg.payload) == "no states":
             newJson = json.dumps(device)
             client.publish("/deviceInfo/"+clientName+"/confirm", newJson)
+
+        ## -- record the entire device object, and send it back on confirm
         # if no get request, grab the sent JSON and send it back
         else:
             # get and store the JSON
             j = msg.payload
             device = json.loads(j)
             print j
-            # -- in future, need ability to send JSON to old name path but update it
-            #device["deviceInfo"]["name"] = clientName
+
             deviceJson = json.dumps(device)
 
+            ## -- subscribe to the right endpoints
             # subscribe to the appropriate endpoint channels
             for key in device["deviceInfo"]["endPoints"]:
                 #print key
@@ -186,6 +189,11 @@ def startup():
     client.publish("/deviceInfo/"+clientName+"/confirm", deviceJson) #for autoreconnect
     client.subscribe("/global/#") # to receive global commands
 
+    ## -- send request states
+    ## -- /persistence/control/[name] "request states". 
+    client.publish("/persistence/control/"+clientName, "request states")
+
+    # -- what is this for again?
     if j != "{ }":
         for key in device["deviceInfo"]["endPoints"]:
             #print key
