@@ -125,7 +125,7 @@ def on_message(client, userdata, msg):
                 #client.subscribe("/inbox/"+clientName+"/"+str(key))
                 client.subscribe(device_path+"/control/"+clientName+"/"+str(key))
             
-            client.publish("/deviceInfo/"+clientName+"/confirm", deviceJson)
+            client.publish("/deviceInfo/confirm/"+clientName, deviceJson)
 
     ### Normal Commands
     else:
@@ -185,8 +185,8 @@ def startup():
 
     client.will_set(device_path+'/errors/'+clientName, 'failed', 0, False)
 
-    client.subscribe("/deviceInfo/"+clientName+"/control")
-    client.publish("/deviceInfo/"+clientName+"/confirm", deviceJson) #for autoreconnect
+    client.subscribe("/deviceInfo/control/"+clientName)
+    client.publish("/deviceInfo/confirm/"+clientName, deviceJson) #for autoreconnect
     client.subscribe("/global/#") # to receive global commands
 
     ## -- send request states
