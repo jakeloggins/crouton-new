@@ -306,11 +306,15 @@ if __name__ == '__main__':
     j = """
     {
         "deviceInfo": {
-            "status": "good",
-            "color": "#4D90FE",
-            "name": "crouton-demo-new",
-            "path": "/house/downstairs/office/test",
-            "type": "pythonscript",
+            "current_ip": "192.168.1.135",
+            "type":"python script on pi",
+            "device_status":"good",
+            "device_name":"crouton-demo-new",
+            "device_name_key": "crouton-demo-new",
+            "description":"Kroobar's IOT devices",
+            "color":"#4D90FE",
+            "path":"/house/downstairs/office/test",
+            "card_display_choice": "default",
             "endPoints": {
                 "barDoor": {
                     "units": "people entered",
