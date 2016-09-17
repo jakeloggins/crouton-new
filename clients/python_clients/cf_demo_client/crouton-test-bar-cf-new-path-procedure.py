@@ -114,6 +114,7 @@ def on_message(client, userdata, msg):
             j = msg.payload
             device = json.loads(j)
             print j
+            print device
 
             deviceJson = json.dumps(device)
 
@@ -306,7 +307,7 @@ if __name__ == '__main__':
     j = """
     {
         "deviceInfo": {
-            "current_ip": "192.168.1.135",
+            "current_ip": "192.168.1.160",
             "type":"python script on pi",
             "device_status":"good",
             "device_name":"crouton-demo-new",
