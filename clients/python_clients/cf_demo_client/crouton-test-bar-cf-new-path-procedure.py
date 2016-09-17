@@ -99,7 +99,7 @@ def on_message(client, userdata, msg):
     
     ### Device Setup Commands
     # (ignore get message b/c persistence takes care of it)
-    elif (before_command[0] == "deviceInfo") & (command == "control") & str(msg.payload) != "get":
+    elif (before_command[0] == "deviceInfo") & (command == "control") & (str(msg.payload) != "get"):
         
         ## -- if no states, use what is stored as default within the code, and send that back on confirm
         # answer a get request by sending the device JSON
