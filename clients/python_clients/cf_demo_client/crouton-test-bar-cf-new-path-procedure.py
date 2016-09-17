@@ -111,12 +111,18 @@ def on_message(client, userdata, msg):
         # if no get request, grab the sent JSON and send it back
         else:
             # get and store the JSON
+            print "message payload.."
+            print msg.payload            
+
             j = msg.payload
             device = json.loads(j)
-            print j
+            print "after loads ..."
             print device
 
             deviceJson = json.dumps(device)
+            print "after dumps..."
+            print deviceJson
+
 
             ## -- subscribe to the right endpoints
             # subscribe to the appropriate endpoint channels
