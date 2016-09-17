@@ -98,7 +98,8 @@ def on_message(client, userdata, msg):
 
     
     ### Device Setup Commands
-    elif (before_command[0] == "deviceInfo") & (command == "control"):
+    # (ignore get message b/c persistence takes care of it)
+    elif (before_command[0] == "deviceInfo") & (command == "control") & str(msg.payload) != "get":
         
         ## -- if no states, use what is stored as default within the code, and send that back on confirm
         # answer a get request by sending the device JSON
@@ -106,9 +107,6 @@ def on_message(client, userdata, msg):
         if str(msg.payload) == "no states":
             newJson = json.dumps(device)
             client.publish("/deviceInfo/"+clientName+"/confirm", newJson)
-
-        elif str(msg.payload) == "get":
-            # do nothing because persistence now takes care of this for us
 
         ## -- record the entire device object, and send it back on confirm
         # if no get request, grab the sent JSON and send it back
