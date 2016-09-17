@@ -107,21 +107,24 @@ def on_message(client, userdata, msg):
             newJson = json.dumps(device)
             client.publish("/deviceInfo/"+clientName+"/confirm", newJson)
 
+        elif str(msg.payload) == "get":
+            # do nothing because persistence now takes care of this for us
+
         ## -- record the entire device object, and send it back on confirm
         # if no get request, grab the sent JSON and send it back
         else:
             # get and store the JSON
-            print "message payload.."
-            print msg.payload            
+            #print "message payload.."
+            #print msg.payload            
 
             j = msg.payload
             device = json.loads(j)
-            print "after loads ..."
-            print device
+            #print "after loads ..."
+            #print device
 
             deviceJson = json.dumps(device)
-            print "after dumps..."
-            print deviceJson
+            #print "after dumps..."
+            #print deviceJson
 
 
             ## -- subscribe to the right endpoints
