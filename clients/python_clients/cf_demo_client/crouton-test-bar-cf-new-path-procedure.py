@@ -101,17 +101,24 @@ def on_message(client, userdata, msg):
     # (ignore get message b/c persistence takes care of it)
     elif (before_command[0] == "deviceInfo") & (command == "control"):
         
-        ## -- if no states, use what is stored as default within the code, and send that back on confirm
+        ## if no states, use what is stored as default within the code, and send that back on confirm
         # answer a get request by sending the device JSON
 
         if str(msg.payload) == "no states":
             newJson = json.dumps(device)
             client.publish("/deviceInfo/"+clientName+"/confirm", newJson)
 
+            # subscribe to appropriate endpoints
+            for key in device["deviceInfo"]["endPoints"]:
+                #print key
+                client.subscribe(str(device["deviceInfo"]["path"])+"/control/"+clientName+"/"+str(key))
+
+
+
         elif str(msg.payload) == "get":
             print "do nothing"
 
-        ## -- record the entire device object, and send it back on confirm
+        ## record the entire device object, and send it back on confirm
         # if no get request, grab the sent JSON and send it back
         else:
             # get and store the JSON
@@ -128,7 +135,7 @@ def on_message(client, userdata, msg):
             #print deviceJson
 
 
-            ## -- subscribe to the right endpoints
+            ## subscribe to the right endpoints
             # subscribe to the appropriate endpoint channels
             for key in device["deviceInfo"]["endPoints"]:
                 #print key
@@ -197,18 +204,18 @@ def startup():
     client.will_set(device_path+'/errors/'+clientName, 'failed', 0, False)
 
     client.subscribe("/deviceInfo/control/"+clientName)
-    client.publish("/deviceInfo/confirm/"+clientName, deviceJson) #for autoreconnect
+    #client.publish("/deviceInfo/confirm/"+clientName, deviceJson) #for autoreconnect
     client.subscribe("/global/#") # to receive global commands
 
-    ## -- send request states
-    ## -- /persistence/control/[name] "request states". 
+    ## send request states
+    ## /persistence/control/[name] "request states". 
     client.publish("/persistence/control/"+clientName, "request states")
 
-    # -- what is this for again?
-    if j != "{ }":
-        for key in device["deviceInfo"]["endPoints"]:
-            #print key
-            client.subscribe(str(device["deviceInfo"]["path"])+"/control/"+clientName+"/"+str(key))
+    # no longer needed b/c this is handled in device setup commands
+    # if j != "{ }":
+    #     for key in device["deviceInfo"]["endPoints"]:
+    #         #print key
+    #         client.subscribe(str(device["deviceInfo"]["path"])+"/control/"+clientName+"/"+str(key))
 
 
 def on_disconnect(client, userdata, rc):
@@ -479,9 +486,6 @@ if __name__ == '__main__':
         device_path = "/default"
 
     client.connect("localhost", 1883, 60)
-    #client.connect("test.mosquitto.org", 1883, 60)
-    #client.connect("192.168.1.140", 1883, 60)
-
 
 
     ### Simulated device logic below
@@ -491,12 +495,3 @@ if __name__ == '__main__':
 
     client.loop_start()
     update_values()
-   # app.run(host='0.0.0.0',port=port)
-
-    # while True:
-    #     time.sleep(1)
-
-
-
-
-    #client.loop_forever()
