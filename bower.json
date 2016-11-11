@@ -73,7 +73,7 @@
     "fizzy-ui-utils": "~2.0.0",
     "outlayer": "~2.0.0",
     "get-size": "~2.0.2",
-    "polymer": "master",
+    "polymer": "^1.5.0",
     "font-roboto": "master",
     "paper-item": "^1.2.1",
     "paper-fab": "^1.2.0",
