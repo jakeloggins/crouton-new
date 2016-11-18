@@ -85,6 +85,8 @@ dom-module(id="crouton-upload")
               paper-item(id="crouton-simple-button") Button
               paper-item(id="crouton-line-chart") Line Chart
               paper-item(id="crouton-rgb-slider") RGB Slider
+              paper-item(id="crouton-simple-dropdown") Dropdown
+              paper-item(id="crouton-simple-toggle") Toggle
               paper-item(id="video") Video
 
           paper-input.grid__col--2-of-12(label="Enter MQTT path", type="text", value="{{newPath::input}}", required)
@@ -276,6 +278,10 @@ dom-module(id="crouton-upload")
                 this.MaxOptional = '';
                 break;
             case 'crouton-simple-input':
+                this.clearAllFalse();
+                this.newCardTitleEnabled = true;
+                break;
+            case 'crouton-simple-dropdown':
                 this.clearAllFalse();
                 this.newCardTitleEnabled = true;
                 break;
