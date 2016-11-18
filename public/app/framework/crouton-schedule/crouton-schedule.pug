@@ -45,8 +45,8 @@ dom-module(id="crouton-schedule")
             paper-tab(id="slide_below") Slide Below
           paper-input.grid__col--1-of-12(label="Enter value", type="text", value="{{newSchedValue::input}}", disabled="{{!newSchedValueEnabled}}", required)
           div.addButtons.grid__col--1-of-12
-            paper-fab(icon="fa:refresh" on-tap="refreshSchedules" elevation="5").rightBtn
-            paper-fab(icon="fa:trash-o" on-tap="clearAllSchedules" elevation="5").rightBtn
+            paper-fab(mini icon="fa:refresh" on-tap="refreshSchedules" elevation="5").rightBtn
+            paper-fab(mini icon="fa:trash-o" on-tap="clearAllSchedules" elevation="5").rightBtn
         paper-toolbar
           paper-input.grid__col--4-of-12(label="Enter path", type="text", value="{{newSchedPath::input}}", required)
           paper-input.grid__col--3-of-12(label="Enter device name" type="text", value="{{newSchedDeviceName::input}}", required)
