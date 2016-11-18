@@ -68,7 +68,7 @@ dom-module(id="crouton-upload")
                 // dom repeat from active devices
                 template(is="dom-repeat", items="{{active_device_list_esp.0}}", as="currDevice")
                   paper-item(id="{{currDevice}}") {{currDevice}}
-          paper-fab(id="blink" icon="fa:lightbulb-o" on-tap="blinkBoard" elevation="5" toggles).rightBtn
+          paper-fab(id="blink" mini icon="fa:lightbulb-o" on-tap="blinkBoard" elevation="5" toggles).rightBtn
 
           paper-dropdown-menu.grid__col--2-of-12(label="Select Sketch", horizontal-align="left", noink, no-animations)
             // app.js reads the sketches folder and sends the array
