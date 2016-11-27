@@ -14,12 +14,12 @@ dom-module(id="crouton-simple-dropdown")
       div.expand
         div.dropDownDisplay
           paper-dropdown-menu(label="Choices")
-            paper-listbox(selected="0", class="dropdown-content").dropdown-content
+            paper-listbox.dropdown-content(selected="{{newSelection}}" attr-for-selected="id", on-click="newSelectedOption")
               template(is="dom-repeat", items="{{_toArray(endPointJson)}}", as="k")
                 template(is="dom-if" if="{{_isValues(k.name)}}")
                   template(is="dom-repeat", items="{{_toArray(k.value)}}" as="attr")
                     template(is="dom-repeat", items="{{_toArray(attr.value)}}" as="choices")
-                      paper-item {{choices.value}}
+                      paper-item(id="{{choices.value}}") {{choices.value}}
                   
 
 
@@ -58,15 +58,16 @@ dom-module(id="crouton-simple-dropdown")
           'newValues(endPointJson.values.*)'
         ],
         ready: function() {
+          this.newSelection = '';
           //console.log(endPointJson);
           //console.log(endPointJson.choices);
 
         },
         newValues: function(changeRecord){
         },
-        newSelectedOption: function(value){
+        newSelectedOption: function(){
           var newValue = {};
-          newValue.value = value;
+          newValue.value = this.newSelection;
           this.mqtt.publishMessage(this.devicePath+"/control/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
           //this.mqtt.publishMessage("/inbox/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
         },
