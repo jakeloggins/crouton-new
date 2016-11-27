@@ -16,8 +16,8 @@ dom-module(id="crouton-simple-dropdown")
           paper-dropdown-menu(label="Choices")
             paper-listbox(selected="0", class="dropdown-content").dropdown-content
               template(is="dom-repeat", items="{{_toArray(endPointJson)}}", as="k")
-                template(is="dom-repeat", items="{{_toArray(k.value)}}" as="attr")
-                  template(is="dom-if" if="{{_isChoices(attr.name)}}")
+                template(is="dom-if" if="{{_isValues(k.name)}}")
+                  template(is="dom-repeat", items="{{_toArray(k.value)}}" as="attr")
                     template(is="dom-repeat", items="{{_toArray(attr.value)}}" as="choices")
                       paper-item {{choices.value}}
                   
@@ -78,8 +78,8 @@ dom-module(id="crouton-simple-dropdown")
                 };
             });s
         },
-        _isChoices: function(name) {
-          if (name == "choices") {
+        _isValues: function(name) {
+          if (name == "values") {
             return true;
           } else {
             return false;
