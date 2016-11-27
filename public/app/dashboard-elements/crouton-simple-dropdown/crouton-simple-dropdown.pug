@@ -36,11 +36,6 @@ dom-module(id="crouton-simple-dropdown")
     (function() {
       Polymer({
         is: "crouton-simple-dropdown",
-        ready: function() {
-          console.log(endPointJson);
-          console.log(endPointJson.choices);
-
-        },
         properties: {
           endPointJson: {
             type: Object,
@@ -63,6 +58,11 @@ dom-module(id="crouton-simple-dropdown")
         observers: [
           'newValues(endPointJson.values.*)'
         ],
+        ready: function() {
+          console.log(endPointJson);
+          console.log(endPointJson.choices);
+
+        },
         newValues: function(changeRecord){
         },
         newSelectedOption: function(value){
