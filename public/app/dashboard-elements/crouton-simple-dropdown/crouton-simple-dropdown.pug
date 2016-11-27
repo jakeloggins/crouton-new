@@ -13,7 +13,7 @@ dom-module(id="crouton-simple-dropdown")
       div.dragger
       div.expand
         div.dropDownDisplay
-          paper-dropdown-menu(label="Choices", value="{{selectedOption}}")
+          paper-dropdown-menu(label="Choices")
             paper-listbox(selected="0", class="dropdown-content").dropdown-content
               template(is="dom-repeat", items="{{_toArray(endPointJson)}}", as="k")
                 template(is="dom-repeat", items="{{_toArray(k.value)}}" as="values")
