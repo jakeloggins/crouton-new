@@ -17,9 +17,7 @@ dom-module(id="crouton-simple-dropdown")
           paper-dropdown-menu(label="Choices", value="{{selectedOption}}")
             paper-listbox(selected="0", class="dropdown-content").dropdown-content
               template(is="dom-repeat", items="{{_toArray(endPointJson)}}", as="k")
-                paper-item {{k.value}}
                 template(is="dom-repeat", items="{{_toArray(k.value)}}" as="values")
-                  paper-item {{values.value}}
                   template(is="dom-repeat", items="{{_toArray(values.value)}}" as="choices")
                     paper-item {{choices.value}}
           // paper-dropdown-menu(label="Dropdown", noAnimations)
@@ -29,7 +27,6 @@ dom-module(id="crouton-simple-dropdown")
           //     paper-item Option C
 
         div.titleDisplay {{endPointJson.title}}
-        div.titleDisplay {{endPoint.Json.values.choices}}
 
 
   style(is="custom-style").
