@@ -16,18 +16,19 @@ dom-module(id="crouton-simple-dropdown")
         div.dropDownDisplay
           paper-dropdown-menu(label="Choices", value="{{selectedOption}}")
             paper-listbox(selected="0", class="dropdown-content").dropdown-content
-              template(is="dom-repeat", items="{{endPointJson.values.choices)}}")
-                //paper-item {{item}}
-                p {{item}}
+              template(is="dom-repeat", items="{{_toArray(endPointJson)}}", as="k")
+                paper-item {{k}}
+                template(is="dom-repeat", items="{{_toArray(k.value)}}" as="values")
+                  paper-item {{values}}
+                  template(is="dom-repeat", items="{{_toArray(values.value)}}" as="choices")
+                    paper-item {{choices}}
           // paper-dropdown-menu(label="Dropdown", noAnimations)
           //   paper-listbox(selected="1", class="dropdown-content")
           //     paper-item Option A
           //     paper-item Option B
           //     paper-item Option C
 
-        div.titleDisplay {{endPointJson}}
         div.titleDisplay {{endPointJson.title}}
-        div.titleDisplay {{endPoint.Json.values}}
         div.titleDisplay {{endPoint.Json.values.choices}}
 
 
@@ -76,12 +77,12 @@ dom-module(id="crouton-simple-dropdown")
           //this.mqtt.publishMessage("/inbox/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
         },
         _toArray: function(obj) {
-          return Object.keys(obj).map(function(key) {
-              return {
-                  name: key,
-                  value: obj[key]
-              };
-          });
+            return Object.keys(obj).map(function(key) {
+                return {
+                    name: key,
+                    value: obj[key]
+                };
+            });s
         }
       });
     }());
