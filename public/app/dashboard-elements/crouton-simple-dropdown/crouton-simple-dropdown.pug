@@ -14,9 +14,9 @@ dom-module(id="crouton-simple-dropdown")
       div.expand
         div.textDisplay {{endPointJson.values.value}}
         div.dropDownDisplay
-          paper-dropdown-menu(label="Options", value="{{selectedOption}}")
+          paper-dropdown-menu(label="Choices", value="{{selectedOption}}")
             paper-listbox(selected="0", class="dropdown-content").dropdown-content
-              template(is="dom-repeat", items="{{_toArray(endPointJson.options)}}")
+              template(is="dom-repeat", items="{{_toArray(endPointJson.choices)}}")
                 //paper-item {{item}}
                 p {{item}}
           // paper-dropdown-menu(label="Dropdown", noAnimations)
@@ -36,6 +36,11 @@ dom-module(id="crouton-simple-dropdown")
     (function() {
       Polymer({
         is: "crouton-simple-dropdown",
+        ready: function() {
+          console.log(endPointJson);
+          console.log(endPointJson.choices);
+
+        },
         properties: {
           endPointJson: {
             type: Object,
