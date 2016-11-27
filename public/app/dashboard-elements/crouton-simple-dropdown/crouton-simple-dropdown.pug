@@ -63,6 +63,9 @@ dom-module(id="crouton-simple-dropdown")
           //console.log(endPointJson.choices);
 
         },
+        attached: function() {
+          this.mqtt = document.getElementById("crouton-mqtt");
+        },
         newValues: function(changeRecord){
         },
         newSelectedOption: function(){
