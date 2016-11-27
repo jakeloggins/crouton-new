@@ -69,6 +69,7 @@ dom-module(id="crouton-simple-dropdown")
           var newValue = {};
           newValue.value = this.newSelection;
           this.mqtt.publishMessage(this.devicePath+"/control/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
+          console.log(newValue);
           //this.mqtt.publishMessage("/inbox/"+this.deviceName+"/"+this.endPointName,JSON.stringify(newValue));
         },
         _toArray: function(obj) {
