@@ -25,7 +25,11 @@ dom-module(id="crouton-simple-dropdown")
           //     paper-item Option B
           //     paper-item Option C
 
+        div.titleDisplay {{endPointJson}}
         div.titleDisplay {{endPointJson.title}}
+        div.titleDisplay {{endPoint.Json.values}}
+        div.titleDisplay {{endPoint.Json.values.choices}}
+
 
   style(is="custom-style").
     paper-dropdown-menu{
@@ -59,8 +63,8 @@ dom-module(id="crouton-simple-dropdown")
           'newValues(endPointJson.values.*)'
         ],
         ready: function() {
-          console.log(endPointJson);
-          console.log(endPointJson.choices);
+          //console.log(endPointJson);
+          //console.log(endPointJson.choices);
 
         },
         newValues: function(changeRecord){
