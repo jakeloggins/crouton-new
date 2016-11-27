@@ -14,10 +14,11 @@ dom-module(id="crouton-simple-dropdown")
       div.expand
         div.textDisplay {{endPointJson.values.value}}
         div.dropDownDisplay
-          paper-dropdown-menu(label="Moods", value="{{selectedOption}}")
+          paper-dropdown-menu(label="Options", value="{{selectedOption}}")
             paper-listbox(selected="0", class="dropdown-content").dropdown-content
               template(is="dom-repeat", items="{{endPointJson.options}}")
-                paper-item {{item}}
+                //paper-item {{item}}
+                p {{item}}
           // paper-dropdown-menu(label="Dropdown", noAnimations)
           //   paper-listbox(selected="1", class="dropdown-content")
           //     paper-item Option A
