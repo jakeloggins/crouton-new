@@ -12,7 +12,7 @@ dom-module(id="crouton-simple-dropdown")
     crouton-card
       div.dragger
       div.expand
-        div.textDisplay {{endPointJson.values.value}}
+        //div.textDisplay {{endPointJson.values.value}}
         div.dropDownDisplay
           paper-dropdown-menu(label="Choices", value="{{selectedOption}}")
             paper-listbox(selected="0", class="dropdown-content").dropdown-content
@@ -20,12 +20,6 @@ dom-module(id="crouton-simple-dropdown")
                 template(is="dom-repeat", items="{{_toArray(k.value)}}" as="values")
                   template(is="dom-repeat", items="{{_toArray(values.value)}}" as="choices")
                     paper-item {{choices.value}}
-          // paper-dropdown-menu(label="Dropdown", noAnimations)
-          //   paper-listbox(selected="1", class="dropdown-content")
-          //     paper-item Option A
-          //     paper-item Option B
-          //     paper-item Option C
-
         div.titleDisplay {{endPointJson.title}}
 
 
