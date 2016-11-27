@@ -16,7 +16,7 @@ dom-module(id="crouton-simple-dropdown")
         div.dropDownDisplay
           paper-dropdown-menu(label="Choices", value="{{selectedOption}}")
             paper-listbox(selected="0", class="dropdown-content").dropdown-content
-              template(is="dom-repeat", items="{{_toArray(endPointJson.choices)}}")
+              template(is="dom-repeat", items="{{endPointJson.values.choices)}}")
                 //paper-item {{item}}
                 p {{item}}
           // paper-dropdown-menu(label="Dropdown", noAnimations)
