@@ -215,9 +215,10 @@ Address: /[path]/confirm/[device name]/[endpoint name]
 Payload: {"value": "some new value here"}
 ```
 
+<!---
+
 Advanced Topics
 ===================
-
 ### Single card devices
 
 If your device only contains one card, like a toggle or counter display, you can reprogram elements of the JSON from within the dashboard. On the connections page, select your card type from the menu and enter the device name, card title, path, and other optional information. This is useful for quickly moving a switch to another room. Rather than reprogramming the device to reflect the new path, name and other information, you can quickly adjust it from within the dashboard.
@@ -244,6 +245,7 @@ Payload: {"value": "some new value here"}
 
 **Note**: The message payload is the same as it would be for a regular command sent to one endpoint. 
 
+-->
 
 Dashboard Cards
 ==============
