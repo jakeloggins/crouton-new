@@ -94,35 +94,50 @@ The deviceInfo is the primary method for Crouton to understand the device. It is
 ```json
 {
   "deviceInfo": {
-    "name": "Kroobar",
+    "device_name": "kroo bar",
+    "device_name_key": "krooBar",
+    "device_status": "connected",
+    "current_ip": "192.xxx.xxx.xxx",
+    "type": "esp",
     "path": "/bar/front/entrance",
+    "card_display_choice": "default",
+    "description": "Kroobar's IOT devices",
+    "espInfo": {
+      ...
+    },
     "endPoints": {
       "barDoor": {
         "title": "Bar Main Door",
         "card-type": "crouton-simple-text",
         "units": "people entered",
-        "function": "counter",
         "values": {
             "value": 34
         }
       }
-    },
-    "description": "Kroobar's IOT devices",
-    "status": "good"
+    }
   }
 }
 ```
 
-* *name*: A string that is the name for the device. This is same name you would use to add the device
+* *device_name*: A string that is the name for the device. This is same name you would use to add the device
+* *device_name_key*: a camelized version of device_name. Necessary for the MQTT topic.
+* *device_status*: A string that describes the status of the device 
 * *path*: Specifies the location to publish and subscribe on the mqtt broker
+* *current_ip*: the IP address assigned during the upload process
+* *type*: used for persistence and other 
 * *endPoints*: An object that configures each dashboard element Crouton will show. There can be more than one endPoint which would be key/object pairs within *endPoints*
-* *function*: A string within an endpoint that is used to group together endpoints for global commands
+
+<!--
+  * *function*: A string within an endpoint that is used to group together endpoints for global commands
+-->
+
 * *description*: A string that describes the device (for display to user only)
-* *status*: A string that describes the status of the device (for display to user only)
 
-**Note**: Both *name* and *endPoints* are required and must be unique to other *names* or *endPoints* respectively
+**Note**: Both *device_name* and *endPoints* are required and must be unique to other names or *endPoints* respectively
 
+<!--
 **Note**: There is now an additional method for adding and altering single card devices, discussed below. If you have multiple cards and store the deviceInfo JSON in your script, simply select "Auto Import" and type in the device name to add to the dashboard.
+-->
 
 ### Addresses
 
@@ -218,9 +233,12 @@ Payload: {"value": "some new value here"}
 Advanced Topics
 ===================
 
+<!-- 
 ### Single card devices
 
 If your device only contains one card, like a toggle or counter display, you can reprogram elements of the JSON from within the dashboard. On the connections page, select your card type from the menu and enter the device name, card title, path, and other optional information. This is useful for quickly moving a switch to another room. Rather than reprogramming the device to reflect the new path, name and other information, you can quickly adjust it from within the dashboard.
+
+-->
 
 ### Location based path rationale 
 
@@ -232,6 +250,7 @@ A previous version of this dashboard used a much simpler path structure, with In
 
 * A better foundation for the addition of global commands. In the python client examples, the placement of command in the middle of the path string allows the device to parase whether a global command applies to it's location.
 
+<!--
 
 ### Global commands
 
@@ -244,6 +263,7 @@ Payload: {"value": "some new value here"}
 
 **Note**: The message payload is the same as it would be for a regular command sent to one endpoint. 
 
+-->
 
 Dashboard Cards
 ==============
@@ -264,7 +284,6 @@ The type of dashboard card for each endPoint is specified in the object of the e
   "values": {
     ...
   }
-  "function": "entrance group"
   ...
 }
 ```
