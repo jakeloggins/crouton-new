@@ -322,6 +322,40 @@ Example:
 }
 ```
 
+### Simple Dropdown
+
+A dropdown menu is used to select a value from the `choices` array.
+
+```json
+Device <- Crouton
+Name: crouton-simple-dropdown
+
+Example:
+"treeAnimation": {
+  "card-type": "crouton-simple-dropdown",
+  "static_endpoint_id": "animationMenu",
+  "title": "Tree Animation",
+  "values": {
+    "choices": [
+      "Fun Random", 
+      "Random Sparkle",
+      "White Sparkle",
+      "Fade Strip In Out",
+      "Fade Strip In",
+      "Clear and Fade Strip In",
+      "Alternate Fade In",
+      "Alternate Fade In Out",
+      "Flare",
+      "Flare Reverse",
+      "Color Wipe",
+      "Color Wipe Reverse",
+      "Random Color",
+      "Rainbow"
+    ]
+  }
+}
+```
+
 ### Simple Input
 
 ![Crouton-simple-text](/static/common/images/crouton-simple-input.png) </br> Simple input is similar to simple text except the user can update the value on the device from Crouton. There is no length restriction of the value by Crouton.

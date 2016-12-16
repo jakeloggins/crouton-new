@@ -122,16 +122,18 @@ The deviceInfo is the primary method for Crouton to understand the device. It is
 * *device_name*: A string that is the name for the device. This is same name you would use to add the device
 * *device_name_key*: a camelized version of device_name. Necessary for the MQTT topic.
 * *device_status*: A string that describes the status of the device 
-* *path*: Specifies the location to publish and subscribe on the mqtt broker
 * *current_ip*: the IP address assigned during the upload process
-* *type*: used for persistence and other 
+* *type*: required for the persistence script.
+* *path*: Specifies the location to publish and subscribe on the mqtt broker
+* *card_display_choice*: used during the upload process. options are default or custom
+* *espInfo*: an object with data about the espressif chip. Used during initial configuration, upload, and persistence.
+* *description*: A string that describes the device (for display to user only)
 * *endPoints*: An object that configures each dashboard element Crouton will show. There can be more than one endPoint which would be key/object pairs within *endPoints*
 
 <!--
   * *function*: A string within an endpoint that is used to group together endpoints for global commands
 -->
 
-* *description*: A string that describes the device (for display to user only)
 
 **Note**: Both *device_name* and *endPoints* are required and must be unique to other names or *endPoints* respectively
 
@@ -176,6 +178,7 @@ An entry in endPoints:
 "barDoor": {
   "title": "Bar Main Door",
   "card-type": "crouton-simple-text",
+  "static_endpoint_id": "door",
   "units": "people entered",
   "values": {
       "value": 34
@@ -319,6 +322,39 @@ Example:
   "title": "Bar Main Door" [optional]
 }
 ```
+
+### Simple Dropdown
+
+A dropdown menu is used to select a value from the `choices` array.
+
+```json
+Device <- Crouton
+Name: crouton-simple-dropdown
+
+Example:
+"treeAnimation": {
+  "card-type": "crouton-simple-dropdown",
+  "static_endpoint_id": "animationMenu",
+  "title": "Tree Animation",
+  "values": {
+    "choices": [
+      "Fun Random", 
+      "Random Sparkle",
+      "White Sparkle",
+      "Fade Strip In Out",
+      "Fade Strip In",
+      "Clear and Fade Strip In",
+      "Alternate Fade In",
+      "Alternate Fade In Out",
+      "Flare",
+      "Flare Reverse",
+      "Color Wipe",
+      "Color Wipe Reverse",
+      "Random Color",
+      "Rainbow"
+    ]
+  }
+}
 
 ### Simple Input
 
