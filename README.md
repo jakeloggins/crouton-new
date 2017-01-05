@@ -7,4 +7,4 @@ This branch of the Crouton Dashboard is or use with the Clod control system for 
 
 [Clod Advanced Guide](https://github.com/jakeloggins/Clod/blob/master/advanced-guide.md).
 
-[Clod Scripts section of the Advanced Guide](https://github.com/jakeloggins/Clod/blob/master/advanced-guide.md#crouton-dashboard).
+[Crouton Dashboard section of the Advanced Guide](https://github.com/jakeloggins/Clod/blob/master/advanced-guide.md#crouton-dashboard).
