@@ -57,29 +57,29 @@ This section will cover the initial setup of the Raspberry Pi, which will manage
 
 * Select your home wifi network's SSID from the list and enter the password.
 
->![initial chip setup](/static/common/images/initial_chip_setup.gif)
+![initial chip setup](/static/common/images/initial_chip_setup.gif)
 
 * Make a note of the information displayed on the screen.
 
->![completed setup](/static/common/images/clod_screenshot.png)
+![completed setup](/static/common/images/clod_screenshot.png)
 
 * In Crouton, select the "Connections" tab.
 
 * In the "Upload" section, select the device from the available devices drop down and upload your desired sketch.
 
->![upload sketch](/static/common/images/upload_sketch.gif)
+![upload sketch](/static/common/images/upload_sketch.gif)
 
 * If the sketch uploaded successfully, you'll see a prompt at the bottom of the screen.
 
   * The prompt may display a link to assembly and configuration information unique to the sketch. If it does, follow the directions. 
 
->![upload success](/static/common/images/upload_success.gif)
+![upload success](/static/common/images/upload_success.gif)
 
 * Once successfully uploaded and configured, select the device from the "Devices" section and click add.
 
 * View information and controls from your device on the "Dashboard" tab.
 
->![add device](https://raw.githubusercontent.com/jakeloggins/Clod/master/img/add_device.gif)
+![add device](https://raw.githubusercontent.com/jakeloggins/Clod/master/img/add_device.gif)
 
 * You're done. Enjoy!
 
@@ -163,16 +163,15 @@ An MQTT standard is just an agreed way to format the topic and payload so that u
 
 The Clod MQTT topic format is:
 
-` /[location based path]/[command]/[device name]/[endpoint] `
+`/[location based path]/[command]/[device name]/[endpoint]`
 
 Examples:
 
-```
-[location based path] > /house/upstairs/guestroom 
-[command] > /control
-[device name] > /myEspDevice
-[endpoint] > /temperature
-```
+`[location based path] > /house/upstairs/guestroom`
+`[command] > /control`
+`[device name] > /myEspDevice`
+`[endpoint] > /temperature`
+
 
 All together, that would look like this:
 
@@ -619,7 +618,6 @@ These cards are for charts!
 
 ![Crouton-chart-donut-1](/static/common/images/crouton-chart-donut-2.png)
 
-</br> A fairly flexible pie chart. The *labels* and *series* (values) are in arrays. The labels are optional (must have at least an empty array) and will not show if empty. *message* is displayed in the center of the donut. *centerSum* (defualt is false) sums up all of the values and replaces *message*. *total* is the value that will fill up the complete circle. If sum of *series* is beyond *total*, the extra parts will be truncated.
 
 ```json
 Device -> Crouton
@@ -649,13 +647,11 @@ Example:
 }
 ```
 
+A fairly flexible pie chart. The *labels* and *series* (values) are in arrays. The labels are optional (must have at least an empty array) and will not show if empty. *message* is displayed in the center of the donut. *centerSum* (defualt is false) sums up all of the values and replaces *message*. *total* is the value that will fill up the complete circle. If sum of *series* is beyond *total*, the extra parts will be truncated.
+
 #### Line Chart
 
 ![Crouton-chart-line](/static/common/images/crouton-chart-line.png)
-
-</br> A simple line chart with multiple lines available. The *labels* corresponds to the x axis values and the *series* corresponds to the y axis values. Multiple sets of (x,y) values can be passed at once as long as the array length of labels and series are matched. The reason why series is multidimensional is so that multiple lines can be drawn where each array in series corresponds to a line. *It is suggested that labels and series be prepopulated with one set of (x,y) value for each line* The *update* parameter is expected on update and holds a copy of *values* with the new *labels* and *series* within. *Max* refers to the maximum number of data points based on the x axis is shown. *low* and *high* refers to the maximum y values expected.
-
-*It is suggested that labels and series be prepopulated with one set of (x,y) value for each line*
 
 ```json
 Device -> Crouton
@@ -699,6 +695,11 @@ To update temperature:
     }
 }
 ```
+
+A simple line chart with multiple lines available. The *labels* corresponds to the x axis values and the *series* corresponds to the y axis values. Multiple sets of (x,y) values can be passed at once as long as the array length of labels and series are matched. The reason why series is multidimensional is so that multiple lines can be drawn where each array in series corresponds to a line. *It is suggested that labels and series be prepopulated with one set of (x,y) value for each line* The *update* parameter is expected on update and holds a copy of *values* with the new *labels* and *series* within. *Max* refers to the maximum number of data points based on the x axis is shown. *low* and *high* refers to the maximum y values expected.
+
+*It is suggested that labels and series be prepopulated with one set of (x,y) value for each line*
+
 
 ### Advanced cards
 
