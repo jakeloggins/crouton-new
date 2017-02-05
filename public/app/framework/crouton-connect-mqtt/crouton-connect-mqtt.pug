@@ -11,7 +11,7 @@ link(rel="import", href="/static/common/bower/iron-ajax/iron-ajax.html")
 
 dom-module(id="crouton-connect-mqtt")
   template
-    iron-ajax(id="all_devices", auto='true', url='../../../public/common/all_devices.json', last-response='{{all_devices}}')
+    iron-ajax(id="ajax_all_devices", auto='true', url='../../../public/common/all_devices.json', last-response='{{all_devices}}')
     link(rel="stylesheet", href="crouton-connect-mqtt.css")
     paper-toast#mqtt-timeout(duration=5000).customToast Connection timeout to MQTT broker #[a(on-click="connectBroker").right Retry]
     crouton-card(drop-shadow="false", bottom-bar="false").grid__col.grid__col--12-of-12
@@ -80,6 +80,9 @@ dom-module(id="crouton-connect-mqtt")
             type: String,
             value: ""
           }
+          properties: {
+            all_devices: Object,
+        },
         },
         listeners: {
 
@@ -345,9 +348,10 @@ dom-module(id="crouton-connect-mqtt")
             //this.client.publish("/deviceInfo/control/"+name, "get", 2);
 
             // -- grab info from json file
-            this.$.all_devices.generateRequest();
+            this.$.ajax_all_devices.generateRequest();
             messageObj = all_devices[name];
             console.log(messageObj);
+            console.log(all_devices);
 
             // -- moved stuff from onMSG callback
               //console.log("name..", name, "auto connect...", that.checkAutoConnect[name], "check status", that.checkStatusAsync[name]);
