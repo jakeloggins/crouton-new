@@ -335,7 +335,7 @@ dom-module(id="crouton-connect-mqtt")
         unsubscribeAddress: function(address){
           this.client.unsubscribe(address);
         },
-          connectDevice: function(name,object,assembledJson){
+        connectDevice: function(name,object,assembledJson){
 
           // new path routing
           //this.subscribeAddress("/deviceInfo/"+name+"/confirm");
@@ -347,6 +347,7 @@ dom-module(id="crouton-connect-mqtt")
             // -- grab info from json file
             this.$.all_devices.generateRequest();
             messageObj = all_devices[name];
+            console.log(messageObj);
 
             // -- moved stuff from onMSG callback
               //console.log("name..", name, "auto connect...", that.checkAutoConnect[name], "check status", that.checkStatusAsync[name]);
