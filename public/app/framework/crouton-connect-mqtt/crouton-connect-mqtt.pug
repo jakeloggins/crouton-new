@@ -374,11 +374,11 @@ dom-module(id="crouton-connect-mqtt")
 
             var deviceCard = document.getElementById(that.deviceCardPrefix + name);
             deviceCard.connectionStatus = "connected";//chance connection status
-            deviceCard.deviceJson = messageObj.deviceInfo;//return device json to device card
+            deviceCard.deviceJson = assembledJson.deviceInfo;//return device json to device card
             if(that.croutonDashboard == null){
               that.croutonDashboard = document.getElementById("crouton-dashboard");
             }
-            that.croutonDashboard.addDevice(name,messageObj.deviceInfo);
+            that.croutonDashboard.addDevice(name,assembledJson.deviceInfo);
             deviceCard.subscribeDevice();
             that.fire('makeToast', { message: "Device <b>" + name + "</b> has been connected", duration: 3000, status: "check-circle" });
           }
