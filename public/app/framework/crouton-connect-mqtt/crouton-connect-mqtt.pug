@@ -89,6 +89,7 @@ dom-module(id="crouton-connect-mqtt")
           this.checkStatusAsync = {};
           this.checkAutoConnect = {};
           this.deviceCardPrefix = "crouton-device-";
+          this.$.ajax_all_devices.generateRequest();
         },
         attached: function() {
           //prepopulate mqtt settings
