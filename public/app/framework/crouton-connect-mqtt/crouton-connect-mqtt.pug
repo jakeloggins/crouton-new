@@ -333,7 +333,7 @@ dom-module(id="crouton-connect-mqtt")
           this.client.unsubscribe(address);
         },
         connectDevice: function(name,object,assembledJson){
-
+          var that = this;
           // new path routing
           //this.subscribeAddress("/deviceInfo/"+name+"/confirm");
 
