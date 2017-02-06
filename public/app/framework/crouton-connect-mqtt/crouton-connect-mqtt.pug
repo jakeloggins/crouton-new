@@ -6,12 +6,9 @@ link(rel="import", href="/static/common/bower/paper-toast/paper-toast.html")
 link(rel="import", href="/static/common/bower/iron-form/iron-form.html")
 link(rel="import", href="/app-render/framework/crouton-card/crouton-card.pug")
 
-link(rel="import", href="/static/common/bower/iron-ajax/iron-ajax.html")
-
 
 dom-module(id="crouton-connect-mqtt")
   template
-    iron-ajax(id="ajax_all_devices", auto='true', url='../../../public/common/all_devices.json', last-response='{{all_devices}}')
     link(rel="stylesheet", href="crouton-connect-mqtt.css")
     paper-toast#mqtt-timeout(duration=5000).customToast Connection timeout to MQTT broker #[a(on-click="connectBroker").right Retry]
     crouton-card(drop-shadow="false", bottom-bar="false").grid__col.grid__col--12-of-12
@@ -80,7 +77,6 @@ dom-module(id="crouton-connect-mqtt")
             type: String,
             value: ""
           },
-          all_devices: Object, 
         },
         listeners: {
 
@@ -89,8 +85,6 @@ dom-module(id="crouton-connect-mqtt")
           this.checkStatusAsync = {};
           this.checkAutoConnect = {};
           this.deviceCardPrefix = "crouton-device-";
-          this.$.ajax_all_devices.generateRequest();
-          console.log(this.all_devices);
         },
         attached: function() {
           //prepopulate mqtt settings
@@ -347,46 +341,43 @@ dom-module(id="crouton-connect-mqtt")
             // if assembledJson is false or undefined, get JSON from device
             //this.client.publish("/deviceInfo/control/"+name, "get", 2);
 
-            // -- grab info from json file
-            this.$.ajax_all_devices.generateRequest();
-            console.log(all_devices);
-            messageObj = all_devices[name];
-            console.log(messageObj);
-
-            // -- moved stuff from onMSG callback
-              //console.log("name..", name, "auto connect...", that.checkAutoConnect[name], "check status", that.checkStatusAsync[name]);
-              if(that.checkAutoConnect[name] || that.checkStatusAsync[name]){
-                if(that.checkStatusAsync[name]){
-                  that.cancelAsync(that.checkStatusAsync[name]);//cancel timeout
-                  delete that.checkStatusAsync[name]; //destroy timeout element to say we are done checking
-                }
-                if(that.checkAutoConnect[name]){
-                  delete that.checkAutoConnect[name];
-                }
-                //that.unsubscribeAddress("/outbox/"+name+"/deviceInfo");
-                //that.unsubscribeAddress("/deviceInfo/"+name+"/confirm")
-
-                var deviceCard = document.getElementById(that.deviceCardPrefix + name);
-                deviceCard.connectionStatus = "connected";//chance connection status
-                deviceCard.deviceJson = messageObj.deviceInfo;//return device json to device card
-                if(that.croutonDashboard == null){
-                  that.croutonDashboard = document.getElementById("crouton-dashboard");
-                }
-                that.croutonDashboard.addDevice(name,messageObj.deviceInfo);
-                deviceCard.subscribeDevice();
-                that.fire('makeToast', { message: "Device <b>" + name + "</b> has been connected", duration: 3000, status: "check-circle" });
-              }
-
-
-
-
           } else {
             // otherwise, send JSON to /deviceInfo/control/name
             //console.log("connect-mqtt connectDevice...")
             //console.log(assembledJson);
             //console.log(JSON.stringify(assembledJson));
-            this.client.publish("/deviceInfo/control/"+name, JSON.stringify(assembledJson), 2);
+            //this.client.publish("/deviceInfo/control/"+name, JSON.stringify(assembledJson), 2);
           }
+
+
+
+          // -- moved stuff from onMSG callback
+            //console.log("name..", name, "auto connect...", that.checkAutoConnect[name], "check status", that.checkStatusAsync[name]);
+          if(that.checkAutoConnect[name] || that.checkStatusAsync[name]){
+            if(that.checkStatusAsync[name]){
+              that.cancelAsync(that.checkStatusAsync[name]);//cancel timeout
+              delete that.checkStatusAsync[name]; //destroy timeout element to say we are done checking
+            }
+            if(that.checkAutoConnect[name]){
+              delete that.checkAutoConnect[name];
+            }
+            //that.unsubscribeAddress("/outbox/"+name+"/deviceInfo");
+            //that.unsubscribeAddress("/deviceInfo/"+name+"/confirm")
+
+            var deviceCard = document.getElementById(that.deviceCardPrefix + name);
+            deviceCard.connectionStatus = "connected";//chance connection status
+            deviceCard.deviceJson = messageObj.deviceInfo;//return device json to device card
+            if(that.croutonDashboard == null){
+              that.croutonDashboard = document.getElementById("crouton-dashboard");
+            }
+            that.croutonDashboard.addDevice(name,messageObj.deviceInfo);
+            deviceCard.subscribeDevice();
+            that.fire('makeToast', { message: "Device <b>" + name + "</b> has been connected", duration: 3000, status: "check-circle" });
+          }
+
+
+
+
           this.checkStatusAsync[name] = this.async(function(){
             object.connectionStatus = "not connected";
             this.fire('makeToast', { message: "Device <b>" + name + "</b> failed to connect", duration: 3000, status: "exclamation-circle" });

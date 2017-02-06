@@ -21,6 +21,7 @@ link(rel="import", href="/app-render/framework/crouton-device-card/crouton-devic
 dom-module(id="crouton-devices")
   template
     iron-ajax(id="ajax_device_list", auto='true', url='../../../public/common/active_device_list.json', last-response='{{active_device_list}}')
+    iron-ajax(id="ajax_all_devices", auto='true', url='../../../public/common/all_devices.json', last-response='{{all_devices}}')
     link(rel="stylesheet", href="crouton-devices.css")
     crouton-card(drop-shadow="false", bottom-bar="false").grid__col.grid__col--12-of-12
       p.header
@@ -94,6 +95,7 @@ dom-module(id="crouton-devices")
         },
         properties: {
           active_device_list: Array,
+          all_devices: Object,
         },
         listeners: {
 
@@ -111,6 +113,7 @@ dom-module(id="crouton-devices")
         },
         refreshAvail: function() {
           this.$.ajax_device_list.generateRequest();
+          this.$.ajax_all_devices.generateRequest();
         },
         validateNewDeviceInput: function(newDeviceName,newPath){
 
@@ -142,6 +145,8 @@ dom-module(id="crouton-devices")
           // make sure name is unique
           if(this.devices.indexOf(name) === -1){
             
+            this.assembledJson = this.$.ajax_all_devices[name];
+
             // now includes assembledJson to pass through to connect-mqtt function 
             this.async(function(){
             this.connectDevice(name,this.assembledJson);
