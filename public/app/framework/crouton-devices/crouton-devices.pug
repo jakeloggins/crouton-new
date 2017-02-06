@@ -177,7 +177,7 @@ dom-module(id="crouton-devices")
         },
         connectDevice: function(name,assembledJson){
           console.log("devices connectDevice ..");
-          console.log(assembledJson);
+          console.log(this.assembledJson);
           //- console.log(JSON.stringify(assembledJson));
           document.getElementById(this.deviceCardPrefix + name).connectDevice(name,this,this.assembledJson);
 
