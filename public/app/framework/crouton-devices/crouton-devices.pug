@@ -175,11 +175,11 @@ dom-module(id="crouton-devices")
               this.splice('devices', index, 1);
           }
         },
-        connectDevice: function(name){
-          //- console.log("devices connectDevice ..");
-          //- console.log(assembledJson);
+        connectDevice: function(name,assembledJson){
+          console.log("devices connectDevice ..");
+          console.log(assembledJson);
           //- console.log(JSON.stringify(assembledJson));
-          document.getElementById(this.deviceCardPrefix + name).connectDevice(name,this,this.assembledJson);
+          document.getElementById(this.deviceCardPrefix + name).connectDevice(name,this,assembledJson);
 
           // clear form
           this.newDeviceName = '';
