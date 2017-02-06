@@ -145,11 +145,13 @@ dom-module(id="crouton-devices")
           // make sure name is unique
           if(this.devices.indexOf(name) === -1){
             
-            this.assembledJson = this.$.ajax_all_devices[name];
             
-            //console.log("from devices ... this assembledJson ", this.assembledJson);
-            //console.log("from devices ... all devices .. ", all_devices);
             console.log("from devices ... this all devices .. ", this.all_devices);
+            console.log("from devices ... this all devices [name", this.all_devices[name]);
+            
+            this.assembledJson = this.all_devices[name];
+            console.log("from devices ... this assembledJson ", this.assembledJson);
+
 
 
             // now includes assembledJson to pass through to connect-mqtt function 
