@@ -156,7 +156,7 @@ dom-module(id="crouton-devices")
 
             // now includes assembledJson to pass through to connect-mqtt function 
             this.async(function(){
-            this.connectDevice(name,this.assembledJson);
+            this.connectDevice(name,this,this.assembledJson);
             }, 100);
 
             // push name to devices
