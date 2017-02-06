@@ -114,6 +114,8 @@ dom-module(id="crouton-devices")
         refreshAvail: function() {
           this.$.ajax_device_list.generateRequest();
           this.$.ajax_all_devices.generateRequest();
+          console.log(this.all_devices);
+          console.log(all_devices);
         },
         validateNewDeviceInput: function(newDeviceName,newPath){
 
