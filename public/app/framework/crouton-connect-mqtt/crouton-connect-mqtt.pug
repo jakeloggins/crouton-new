@@ -337,6 +337,13 @@ dom-module(id="crouton-connect-mqtt")
           // new path routing
           //this.subscribeAddress("/deviceInfo/"+name+"/confirm");
 
+          console.log("from mqtt connect ... name", name);
+          console.log("from mqtt connect ... object", name);
+          console.log("from mqtt connect ... assembledJson", name);
+
+
+
+
           if (assembledJson == false || assembledJson === undefined) {
             // if assembledJson is false or undefined, get JSON from device
             //this.client.publish("/deviceInfo/control/"+name, "get", 2);
@@ -348,6 +355,7 @@ dom-module(id="crouton-connect-mqtt")
             //console.log(JSON.stringify(assembledJson));
             //this.client.publish("/deviceInfo/control/"+name, JSON.stringify(assembledJson), 2);
           }
+
 
 
 
