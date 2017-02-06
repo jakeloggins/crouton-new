@@ -72,6 +72,11 @@ dom-module(id="crouton-dashboard")
           }
         },
         addDevice: function(device,deviceJson){
+
+          console.log("from dashboard add device ... device ... ", device);
+          console.log("from dashboard add device ... deviceJson ... ", deviceJson);
+          console.log("from dashboard add device ... deviceJson.endPoints ...", deviceJson.endPoints);          
+          
           for (var address in deviceJson.endPoints){
             if (deviceJson.endPoints.hasOwnProperty(address)) {
               var elementName = deviceJson.endPoints[address]["card-type"];
