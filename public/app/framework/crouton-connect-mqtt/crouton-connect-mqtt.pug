@@ -337,10 +337,10 @@ dom-module(id="crouton-connect-mqtt")
           // new path routing
           //this.subscribeAddress("/deviceInfo/"+name+"/confirm");
 
-          console.log("from mqtt connect ... name", name);
-          console.log("from mqtt connect ... object", object);
-          console.log("from mqtt connect ... assembledJson dot deviceInfo", assembledJson.deviceInfo);
-          console.log("from mqtt connect ... assembledJson", assembledJson);
+          //console.log("from mqtt connect ... name", name);
+          //console.log("from mqtt connect ... object", object);
+          //console.log("from mqtt connect ... assembledJson dot deviceInfo", assembledJson.deviceInfo);
+          //console.log("from mqtt connect ... assembledJson", assembledJson);
 
 
 
@@ -363,12 +363,10 @@ dom-module(id="crouton-connect-mqtt")
             this.fire('makeToast', { message: "Device <b>" + name + "</b> failed to connect", duration: 3000, status: "exclamation-circle" });
           }, 5000);
 
-            //  -- wait for return message within connectBroker
-
 
 
           // -- moved stuff from onMSG callback
-            console.log("name..", name, "auto connect...", that.checkAutoConnect[name], "check status", that.checkStatusAsync[name]);
+            //console.log("name..", name, "auto connect...", that.checkAutoConnect[name], "check status", that.checkStatusAsync[name]);
           if(that.checkAutoConnect[name] || that.checkStatusAsync[name]){
             if(that.checkStatusAsync[name]){
               that.cancelAsync(that.checkStatusAsync[name]);//cancel timeout

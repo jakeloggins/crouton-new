@@ -114,7 +114,7 @@ dom-module(id="crouton-devices")
         refreshAvail: function() {
           this.$.ajax_device_list.generateRequest();
           this.$.ajax_all_devices.generateRequest();
-          console.log(this.all_devices);
+          //console.log(this.all_devices);
         },
         validateNewDeviceInput: function(newDeviceName,newPath){
 
@@ -147,11 +147,11 @@ dom-module(id="crouton-devices")
           if(this.devices.indexOf(name) === -1){
             
             
-            console.log("from devices ... this all devices .. ", this.all_devices);
-            console.log("from devices ... this all devices [name]", this.all_devices[name]);
+            //console.log("from devices ... this all devices .. ", this.all_devices);
+            //console.log("from devices ... this all devices [name]", this.all_devices[name]);
             
             this.assembledJson = this.all_devices[name];
-            console.log("from devices ... this assembledJson ", this.assembledJson);
+            //console.log("from devices ... this assembledJson ", this.assembledJson);
 
 
 
@@ -176,8 +176,8 @@ dom-module(id="crouton-devices")
           }
         },
         connectDevice: function(name){
-          console.log("devices connectDevice ..");
-          console.log(this.assembledJson);
+          //console.log("devices connectDevice ..");
+          //console.log(this.assembledJson);
           //- console.log(JSON.stringify(assembledJson));
           document.getElementById(this.deviceCardPrefix + name).connectDevice(name,this,this.assembledJson);
 
