@@ -358,6 +358,14 @@ dom-module(id="crouton-connect-mqtt")
 
 
 
+          this.checkStatusAsync[name] = this.async(function(){
+            object.connectionStatus = "not connected";
+            this.fire('makeToast', { message: "Device <b>" + name + "</b> failed to connect", duration: 3000, status: "exclamation-circle" });
+          }, 5000);
+
+            //  -- wait for return message within connectBroker
+
+
 
           // -- moved stuff from onMSG callback
             console.log("name..", name, "auto connect...", that.checkAutoConnect[name], "check status", that.checkStatusAsync[name]);
@@ -386,12 +394,6 @@ dom-module(id="crouton-connect-mqtt")
 
 
 
-          this.checkStatusAsync[name] = this.async(function(){
-            object.connectionStatus = "not connected";
-            this.fire('makeToast', { message: "Device <b>" + name + "</b> failed to connect", duration: 3000, status: "exclamation-circle" });
-          }, 5000);
-
-            //  -- wait for return message within connectBroker
         },
         storageAvailable: function(type) {
         	try {
