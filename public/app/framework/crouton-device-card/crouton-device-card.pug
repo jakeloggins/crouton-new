@@ -105,6 +105,9 @@ dom-module(id="crouton-device-card")
           //- console.log(assembledJson);
           //- console.log(JSON.stringify(assembledJson));
 
+          console.log("device card assembled Json.. ", this.assembledJson);
+
+
           this.mqttCard.connectDevice(this.deviceName,this,this.assembledJson);
           var index = this.savedDeviceIndex(this.deviceName);
           this.saveCheckbox = index || index === 0 ? true : false;
