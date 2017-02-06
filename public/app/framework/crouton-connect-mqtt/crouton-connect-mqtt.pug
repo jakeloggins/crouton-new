@@ -386,9 +386,9 @@ dom-module(id="crouton-connect-mqtt")
 
 
 
-          this.checkStatusAsync[name] = this.async(function(){
+          that.checkStatusAsync[name] = that.async(function(){
             object.connectionStatus = "not connected";
-            this.fire('makeToast', { message: "Device <b>" + name + "</b> failed to connect", duration: 3000, status: "exclamation-circle" });
+            that.fire('makeToast', { message: "Device <b>" + name + "</b> failed to connect", duration: 3000, status: "exclamation-circle" });
           }, 5000);
 
             //  -- wait for return message within connectBroker
