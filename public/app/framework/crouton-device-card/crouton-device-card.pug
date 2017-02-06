@@ -105,7 +105,7 @@ dom-module(id="crouton-device-card")
           //- console.log(assembledJson);
           //- console.log(JSON.stringify(assembledJson));
 
-          this.mqttCard.connectDevice(this.deviceName,this,assembledJson);
+          this.mqttCard.connectDevice(this.deviceName,this.assembledJson);
           var index = this.savedDeviceIndex(this.deviceName);
           this.saveCheckbox = index || index === 0 ? true : false;
         },
