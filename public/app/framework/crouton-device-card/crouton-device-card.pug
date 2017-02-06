@@ -155,7 +155,7 @@ dom-module(id="crouton-device-card")
           if(this.connectionStatus == "connected"){
             this.disconnectDevice();
           } else if(this.connectionStatus == "not connected"){
-            this.connectDevice();
+            this.connectDevice(this.deviceName,this,this.deviceJson);
           }
         },
         autoConnect: function(){
