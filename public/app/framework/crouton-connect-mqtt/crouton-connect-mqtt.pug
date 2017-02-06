@@ -338,8 +338,8 @@ dom-module(id="crouton-connect-mqtt")
           //this.subscribeAddress("/deviceInfo/"+name+"/confirm");
 
           console.log("from mqtt connect ... name", name);
-          console.log("from mqtt connect ... object", object);
-          console.log("from mqtt connect ... assembledJson", assembledJson);
+          //console.log("from mqtt connect ... object", object);
+          console.log("from mqtt connect ... assembledJson dot deviceInfo", assembledJson.deviceInfo);
 
 
 
@@ -374,11 +374,11 @@ dom-module(id="crouton-connect-mqtt")
 
             var deviceCard = document.getElementById(that.deviceCardPrefix + name);
             deviceCard.connectionStatus = "connected";//change connection status
-            deviceCard.deviceJson = assembledJson;//return device json to device card
+            deviceCard.deviceJson = assembledJson.deviceInfo;//return device json to device card
             if(that.croutonDashboard == null){
               that.croutonDashboard = document.getElementById("crouton-dashboard");
             }
-            that.croutonDashboard.addDevice(name,assembledJson);
+            that.croutonDashboard.addDevice(name,assembledJson.deviceInfo);
             deviceCard.subscribeDevice();
             that.fire('makeToast', { message: "Device <b>" + name + "</b> has been connected", duration: 3000, status: "check-circle" });
           }
