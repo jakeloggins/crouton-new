@@ -349,9 +349,9 @@ dom-module(id="crouton-connect-mqtt")
 
             // -- grab info from json file
             this.$.ajax_all_devices.generateRequest();
+            console.log(all_devices);
             messageObj = all_devices[name];
             console.log(messageObj);
-            console.log(all_devices);
 
             // -- moved stuff from onMSG callback
               //console.log("name..", name, "auto connect...", that.checkAutoConnect[name], "check status", that.checkStatusAsync[name]);
