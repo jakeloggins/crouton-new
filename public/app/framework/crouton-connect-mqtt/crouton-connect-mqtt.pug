@@ -360,14 +360,14 @@ dom-module(id="crouton-connect-mqtt")
 
 
           // -- moved stuff from onMSG callback
-            //console.log("name..", name, "auto connect...", that.checkAutoConnect[name], "check status", that.checkStatusAsync[name]);
-          if(this.checkAutoConnect[name] || this.checkStatusAsync[name]){
-            if(this.checkStatusAsync[name]){
-              that.cancelAsync(this.checkStatusAsync[name]);//cancel timeout
-              delete this.checkStatusAsync[name]; //destroy timeout element to say we are done checking
+            console.log("name..", name, "auto connect...", that.checkAutoConnect[name], "check status", that.checkStatusAsync[name]);
+          if(that.checkAutoConnect[name] || that.checkStatusAsync[name]){
+            if(that.checkStatusAsync[name]){
+              that.cancelAsync(that.checkStatusAsync[name]);//cancel timeout
+              delete that.checkStatusAsync[name]; //destroy timeout element to say we are done checking
             }
-            if(this.checkAutoConnect[name]){
-              delete this.checkAutoConnect[name];
+            if(that.checkAutoConnect[name]){
+              delete that.checkAutoConnect[name];
             }
             //that.unsubscribeAddress("/outbox/"+name+"/deviceInfo");
             //that.unsubscribeAddress("/deviceInfo/"+name+"/confirm")
