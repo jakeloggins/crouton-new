@@ -99,13 +99,13 @@ dom-module(id="crouton-device-card")
           //this.mqttCard.unsubscribeAddress("/deviceInfo/" + this.deviceName + "/confirm");
           this.unsubscribeDevice(this.alreadyRemoved);
         },
-        connectDevice: function(assembledJson){
+        connectDevice: function(){
           this.connectionStatus = "connecting";
           //- console.log("device card connectDevice ...");
           //- console.log(assembledJson);
           //- console.log(JSON.stringify(assembledJson));
 
-          this.mqttCard.connectDevice(this.deviceName,this,assembledJson);
+          this.mqttCard.connectDevice(this.deviceName,this,this.assembledJson);
           var index = this.savedDeviceIndex(this.deviceName);
           this.saveCheckbox = index || index === 0 ? true : false;
         },
