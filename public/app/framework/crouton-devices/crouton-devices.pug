@@ -115,7 +115,6 @@ dom-module(id="crouton-devices")
           this.$.ajax_device_list.generateRequest();
           this.$.ajax_all_devices.generateRequest();
           console.log(this.all_devices);
-          console.log(all_devices);
         },
         validateNewDeviceInput: function(newDeviceName,newPath){
 
@@ -158,7 +157,7 @@ dom-module(id="crouton-devices")
 
             // now includes assembledJson to pass through to connect-mqtt function 
             this.async(function(){
-            this.connectDevice(name);
+            this.connectDevice(name,this.assembledJson);
             }, 100);
 
             // push name to devices
